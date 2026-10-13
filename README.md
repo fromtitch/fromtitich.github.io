@@ -1,7 +1,3 @@
-[LISEZMOI.md](https://github.com/user-attachments/files/33390227/LISEZMOI.md)
----
-titre: Boîtes de Leitner — site autonome · mode d'emploi enseignant
-diplomes: [MCV, MA]
 date_created: 2026-10-13
 date_updated: 2026-10-13
 ---
