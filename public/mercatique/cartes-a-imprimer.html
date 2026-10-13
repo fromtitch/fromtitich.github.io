@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartes à imprimer — Leitner mercatique</title>
+<style>
+/* Feuilles A4 portrait : notice, plannings, puis planches de 8 cartes (recto) suivies de leur verso en miroir. Charte NOMADE, fond blanc. */
+:root {
+  --encre: #1A1A1A; --doux: #5E5366; --trait: #CDBFD4; --prune: #692073; --magenta: #B141BF;
+  --lavande: #DFB3F2; --cyan: #0DB3D9; --cyan-encre: #05677F; --exemple: #EAF8FC; --fond: #FFFFFF;
+  --police: Verdana, "DejaVu Sans", Geneva, Tahoma, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { background: #E9E4EC; margin: 0; }
+body { font-family: var(--police); color: var(--encre); }
+@page { size: A4 portrait; margin: 0; }
+
+.aide { max-width: 210mm; margin: 16px auto; padding: 16px; background: var(--fond); border-radius: 8px; font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 8px; }
+.aide h1 { font-size: 18px; color: var(--prune); margin: 0; }
+.aide ul { margin: 0; padding-left: 1.2em; }
+.aide .themes { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.aide label { cursor: pointer; }
+
+.feuille { width: 210mm; height: 296.5mm; margin: 0 auto 10mm; background: var(--fond); padding: 13.25mm 10mm; overflow: hidden; position: relative; page-break-after: always; break-after: page; }
+.grille { display: grid; grid-template-columns: 95mm 95mm; grid-template-rows: repeat(4, 67.5mm); }
+.carte { border: 0.3mm dashed var(--trait); padding: 4mm 5mm; display: flex; flex-direction: column; gap: 2mm; overflow: hidden; position: relative; }
+.carte .haut { display: flex; justify-content: space-between; font-size: 6.5pt; color: var(--doux); letter-spacing: .03em; }
+.carte .tag { border: 0.3mm solid var(--cyan); color: var(--cyan-encre); border-radius: 2mm; padding: 0 1.5mm; }
+.carte .contenu { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 1.4mm; font-size: 9pt; line-height: 1.32; }
+.recto .contenu { justify-content: center; text-align: center; font-size: 12pt; font-weight: bold; color: var(--prune); }
+.recto .bande { position: absolute; left: 0; top: 0; bottom: 0; width: 2.2mm; background: var(--lavande); }
+.recto.calcul .bande { background: var(--cyan); }
+.verso .contenu p { margin: 0; }
+.verso .contenu ul { margin: 0; padding-left: 4mm; }
+.verso strong { color: var(--prune); }
+.verso .ex { background: var(--exemple); border-left: 1mm solid var(--cyan); padding: 1.2mm 2mm; font-size: .92em; display: flex; flex-direction: column; gap: .6mm; }
+.verso .ex strong { color: var(--cyan-encre); }
+.verso .rappel { font-size: 6.5pt; color: var(--doux); }
+code { font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: .92em; }
+.vide { border-color: transparent; }
+
+/* Notice et plannings */
+.notice { display: flex; flex-direction: column; gap: 6mm; font-size: 10.5pt; line-height: 1.45; }
+.notice header { display: flex; align-items: center; gap: 5mm; border-bottom: 1mm solid var(--prune); padding-bottom: 4mm; }
+.notice h1 { font-size: 18pt; color: var(--prune); margin: 0; }
+.notice h2 { font-size: 12pt; color: var(--prune); margin: 0 0 2mm; }
+.notice ol { margin: 0; padding-left: 6mm; display: flex; flex-direction: column; gap: 1.5mm; }
+.notice p { margin: 0; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.semaine th, .semaine td { border: 0.3mm solid var(--trait); text-align: center; padding: 2mm 1mm; font-size: 10pt; }
+.semaine thead th { background: var(--prune); color: #fff; }
+.semaine td.oui { background: var(--lavande); font-weight: bold; }
+.rythme td { padding: 1.2mm 2mm; border-bottom: 0.3mm solid var(--trait); font-size: 9.5pt; }
+.annee th, .annee td { border: 0.25mm solid var(--trait); width: 5.4mm; height: 6.6mm; font-size: 6.5pt; text-align: center; padding: 0; }
+.annee th.mois { width: 15mm; text-align: left; padding-left: 1.5mm; font-size: 8pt; color: var(--prune); }
+.annee td.x { background: repeating-linear-gradient(45deg, #fff, #fff 1mm, #EEE 1mm, #EEE 2mm); }
+.annee td.we { background: #F7F2FA; }
+
+@media print {
+  html, body { background: #fff; }
+  .aide { display: none; }
+  .feuille { margin: 0; }
+}
+</style>
+</head>
+<body>
+<div class="aide" id="aide">
+  <a href="../index.html" style="color:var(--doux);font-size:13px">← Toutes les boîtes</a>
+  <h1 id="aide-titre">Cartes à imprimer</h1>
+  <ul>
+    <li>Imprimer avec <strong>Ctrl + P</strong>, format <strong>A4</strong>, échelle <strong>100 %</strong>, marges <strong>aucune</strong>, <strong>recto verso bord long</strong>.</li>
+    <li>Chaque planche de questions est suivie de la planche des réponses, placée en miroir pour tomber au dos de la bonne carte.</li>
+    <li>Découper en suivant les pointillés. Une bande cyan signale une carte de calcul.</li>
+    <li>Pour modifier les cartes : éditer <code>cartes.md</code>, puis relancer <code>python3 generer.py</code>.</li>
+  </ul>
+  <div><strong>Thèmes à imprimer</strong> <span id="compte"></span></div>
+  <div class="themes" id="choix"></div>
+  <label><input type="checkbox" id="avec-notice" checked> Imprimer la notice et les plannings (2 pages)</label>
+</div>
+<div id="feuilles"></div>
+
+<script>
+// Lecture du fichier cartes.md — partagé par l'application et la page d'impression.
+// Format : "## Thème", "### Question #calcul", lignes de réponse, lignes "> " = exemple.
+
+function hashTexte(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+
+function parseCartes(md) {
+  const lignes = md.replace(/\r/g, '').split('\n');
+  let i = 0;
+  let titre = 'Boîte de Leitner';
+  if (lignes[0] && lignes[0].trim() === '---') {
+    for (i = 1; i < lignes.length && lignes[i].trim() !== '---'; i++) {
+      const m = lignes[i].match(/^titre:\s*(.+)$/);
+      if (m) titre = m[1].trim().replace(/^["']|["']$/g, '');
+    }
+    i++;
+  }
+  const themes = [];
+  const vus = {};
+  let theme = null;
+  let carte = null;
+  let commentaire = false;
+  for (; i < lignes.length; i++) {
+    let L = lignes[i].replace(/%%.*?%%/g, '');
+    if (L.includes('%%')) { commentaire = !commentaire; continue; }
+    if (commentaire) continue;
+    if (/^## /.test(L)) {
+      theme = { nom: L.slice(3).trim(), cartes: [] };
+      themes.push(theme);
+      carte = null;
+      continue;
+    }
+    if (/^### /.test(L)) {
+      if (!theme) { theme = { nom: 'Sans thème', cartes: [] }; themes.push(theme); }
+      let q = L.slice(4).trim();
+      const calcul = /(^|\s)#calcul(?=\s|$)/.test(q);
+      q = q.replace(/(^|\s)#calcul(?=\s|$)/g, '').trim();
+      let id = hashTexte(q);
+      if (vus[id]) id += '-' + (++vus[id]); else vus[id] = 1;
+      carte = { id, q, calcul, reponse: [], exemple: [], theme: theme.nom };
+      theme.cartes.push(carte);
+      continue;
+    }
+    if (/^#{1,6} /.test(L)) { carte = null; continue; }
+    if (!carte) continue;
+    if (/^>/.test(L)) { carte.exemple.push(L.replace(/^>\s?/, '')); continue; }
+    carte.reponse.push(L);
+  }
+  const nettoyer = (t) => {
+    while (t.length && !t[0].trim()) t.shift();
+    while (t.length && !t[t.length - 1].trim()) t.pop();
+    return t;
+  };
+  const resultat = themes.filter((t) => t.cartes.length);
+  resultat.forEach((t) => t.cartes.forEach((c) => { nettoyer(c.reponse); nettoyer(c.exemple); }));
+  return { titre, themes: resultat, cartes: resultat.flatMap((t) => t.cartes) };
+}
+
+function echapper(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function enLigne(s) {
+  return echapper(s)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/(^|[\s(])\*(?!\s)(.+?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>')
+    // Typographie française : espace insécable avant ? ! : ; » et après «
+    .replace(/ ([?!:;»])/g, ' $1')
+    .replace(/« /g, '« ');
+}
+
+// Petit rendu Markdown : paragraphes, listes à puces, gras, italique, code.
+function mdVersHtml(lignes) {
+  let html = '';
+  let liste = false;
+  for (const brute of lignes) {
+    const L = brute.trim();
+    if (/^[-*] /.test(L)) {
+      if (!liste) { html += '<ul>'; liste = true; }
+      html += '<li>' + enLigne(L.slice(2)) + '</li>';
+      continue;
+    }
+    if (liste) { html += '</ul>'; liste = false; }
+    if (L) html += '<p>' + enLigne(L) + '</p>';
+  }
+  if (liste) html += '</ul>';
+  return html;
+}
+
+
+const MD = "---\ntitre: Boîte de Leitner — La démarche mercatique\ndiplomes: [MCV]\nniveau: Première et terminale MCV\ndate_created: 2026-10-13\ndate_updated: 2026-10-13\n---\n\n# Boîte de Leitner — La démarche mercatique\n\n> [!info] Comment modifier les cartes\n> - `## Titre` : un **thème** (une étape de la démarche). Les thèmes entrent dans la boîte dans cet ordre.\n> - `### Question` : le **recto** d'une carte. Ajouter `#calcul` à la fin pour une carte de calcul.\n> - Les lignes qui suivent : le **verso** (la réponse). On peut écrire en **gras** et faire des listes avec `- `.\n> - Une ligne qui commence par `>` : l'**exemple** chiffré, affiché dans un encadré sous la réponse.\n> - Après une modification, lancer `python3 generer.py` dans ce dossier (voir [[Cours/MCV/Boîte de Leitner - Démarche mercatique/LISEZMOI|LISEZMOI]]).\n>\n> Une carte = une seule notion. Garder les réponses courtes.\n\n## 1 · La démarche mercatique\n\n### Qu'est-ce que la démarche mercatique ?\nL'enchaînement d'étapes qui part de l'**analyse du marché** pour construire une **offre adaptée** à une clientèle choisie, puis en **mesure les résultats**.\n\n### Quelles sont les 6 étapes de la démarche mercatique, dans l'ordre ?\n- 1 · Diagnostic (analyse du marché)\n- 2 · Segmentation\n- 3 · Ciblage\n- 4 · Positionnement\n- 5 · Plan de marchéage (4P)\n- 6 · Mise en œuvre et contrôle\n\n### Que veut dire « mercatique » ?\nC'est le mot français officiel pour **marketing**.\n\n### Que signifie le trio STP ?\n**S**egmentation, **T**argeting (ciblage), **P**ositioning (positionnement) : segmenter → cibler → positionner. Ce sont les étapes 2, 3 et 4.\n\n### Qu'est-ce que le plan de marchéage ?\nL'ensemble des décisions sur les **4P** : produit, prix, distribution (place), communication (promotion). On dit aussi **mix marketing**.\n\n### Pourquoi dit-on que la démarche mercatique est cyclique ?\nLes résultats du **contrôle** (étape 6) servent de point de départ au **diagnostic** suivant.\n\n### Dans quelle activité du Bac Pro MCV la démarche mercatique est-elle un savoir associé ?\nDans l'activité **A3 · Fidélisation**, évaluée en **E33** (CCF). Elle sert aussi dans les études de cas de l'**E2**.\n\n## 2 · Diagnostic : le marché et le SWOT\n\n### Qu'est-ce qu'un marché ?\nLe lieu de rencontre entre l'**offre** (les vendeurs) et la **demande** (les acheteurs) pour un produit ou un service.\n\n### Quelle est la différence entre concurrence directe et concurrence indirecte ?\n- **Directe** : la même offre pour la même clientèle.\n- **Indirecte** : une offre ou un canal différent qui répond au même besoin.\n> Pour un magasin de sport : un autre magasin de sport est un concurrent direct ; un site de vêtements de seconde main est un concurrent indirect.\n\n### Que signifie SWOT ? Et FFOM ?\n**S**trengths, **W**eaknesses, **O**pportunities, **T**hreats. En français : **F**orces, **F**aiblesses, **O**pportunités, **M**enaces.\n\n### Dans un SWOT, quels éléments sont internes ?\nLes **forces** et les **faiblesses** : ce que l'entreprise **maîtrise** et sur quoi elle peut agir.\n\n### Dans un SWOT, quels éléments sont externes ?\nLes **opportunités** et les **menaces** : ce que l'**environnement** impose (marché, concurrence, réglementation, tendances).\n\n### Faiblesse ou menace : « Un concurrent ouvre un magasin à 500 m. »\nUne **menace** : elle est externe, l'entreprise ne la contrôle pas.\n\n### Faiblesse ou menace : « Le magasin n'a pas de site de vente en ligne. »\nUne **faiblesse** : elle est interne, l'entreprise peut agir dessus.\n\n### À quoi sert un SWOT une fois rempli ?\nÀ formuler des **préconisations** : s'appuyer sur les **forces** pour saisir les **opportunités**, et réduire les **faiblesses** face aux **menaces**.\n\n### Que signifie PESTEL ?\n**P**olitique, **É**conomique, **S**ocioculturel, **T**echnologique, **E**nvironnemental (écologique), **L**égal. Cette analyse du macro-environnement alimente les opportunités et les menaces du SWOT.\n\n### Comment calcule-t-on une part de marché en valeur ? #calcul\n**Part de marché = CA de l'entreprise ÷ CA total du marché × 100**\nEn volume, on fait le même calcul avec les quantités vendues.\n> CA du magasin : 450 000 € · marché local : 3 000 000 €\n> 450 000 ÷ 3 000 000 × 100 = **15 %**\n\n### Comment calcule-t-on un taux d'évolution ? #calcul\n**Taux d'évolution = (valeur d'arrivée − valeur de départ) ÷ valeur de départ × 100**\n> CA 2025 : 200 000 € · CA 2026 : 230 000 €\n> (230 000 − 200 000) ÷ 200 000 × 100 = **+15 %**\n\n### Le CA de 80 000 € doit progresser de 5 %. Comment calculer l'objectif ? #calcul\n**Objectif = valeur de départ × (1 + taux)**\n> 80 000 × 1,05 = **84 000 €**\n> Pour une baisse de 5 % : 80 000 × 0,95 = 76 000 €\n\n## 3 · Diagnostic : la zone de chalandise\n\n### Qu'est-ce que la zone de chalandise ?\nLa zone géographique d'où viennent les clients, **réels et potentiels**, d'un point de vente.\n\n### Quelles sont les trois zones d'une zone de chalandise ?\n- **Primaire** : moins de 10 min, la majorité des clients\n- **Secondaire** : 10 à 20 min, des clients moins fréquents\n- **Tertiaire** : plus de 20 min, des clients occasionnels\nLes seuils changent selon le type de commerce.\n\n### Qu'est-ce qu'une isochrone ?\nUne courbe qui relie les points situés au **même temps de trajet** du magasin. On la préfère au cercle en kilomètres (isodistance), car elle tient compte des routes et des bouchons.\n\n### Qu'est-ce que le taux d'emprise ?\nLa part du **marché potentiel** qu'un point de vente capte dans une zone. Il **diminue** quand on s'éloigne du magasin.\n\n### Qu'est-ce que l'évasion commerciale ?\nLes dépenses des habitants de la zone faites **en dehors** de celle-ci : dans une autre ville ou sur Internet.\n\n### Pourquoi tous les habitants d'une zone ne sont-ils pas des clients ?\nIls peuvent acheter chez un concurrent, ailleurs ou en ligne. C'est pour cela qu'on applique un **taux d'emprise** au marché potentiel.\n\n### Comment calcule-t-on le marché potentiel d'une zone ? #calcul\n**Marché potentiel = population × dépense moyenne par habitant** (pour la famille de produits)\n> Zone primaire : 64 000 habitants · 420 € par habitant\n> 64 000 × 420 = **26 880 000 €**\n\n### Comment calcule-t-on le marché potentiel avec l'IDC ? #calcul\n**Marché potentiel = population × dépense moyenne nationale × IDC ÷ 100**\nL'IDC (indice de disparité de la consommation) compare la dépense locale à la moyenne nationale (base 100).\n> 10 000 habitants · 400 € par an · IDC 110\n> 10 000 × 400 × 110 ÷ 100 = **4 400 000 €**\n\n### Comment calcule-t-on le CA prévisionnel d'une zone ? #calcul\n**CA prévisionnel = marché potentiel × taux d'emprise**\n> 26 880 000 € × 12 % = **3 225 600 €**\n\n### Comment calcule-t-on un taux d'emprise ? #calcul\n**Taux d'emprise = CA réalisé dans la zone ÷ marché potentiel de la zone × 100**\n> Zone secondaire : CA 705 600 € · marché potentiel 8 820 000 €\n> 705 600 ÷ 8 820 000 × 100 = **8 %**\n\n### Comment calcule-t-on un taux d'évasion commerciale ? #calcul\n**Taux d'évasion = dépenses faites hors de la zone ÷ dépenses totales des habitants × 100**\n> 1 200 000 € dépensés ailleurs sur 8 000 000 €\n> 1 200 000 ÷ 8 000 000 × 100 = **15 %**\n\n### Une zone tertiaire a deux fois plus d'habitants que la zone secondaire mais rapporte moins. Pourquoi ?\nPlus le client habite loin, **moins il vient** : le taux d'emprise y est beaucoup plus faible.\n> Secondaire : 21 000 hab. × 420 € × 8 % = 705 600 €\n> Tertiaire : 45 000 hab. × 420 € × 3 % = 567 000 €\n\n## 4 · Segmentation : RFM et données clients\n\n### Que veut dire segmenter ?\nDécouper l'ensemble des clients en **groupes homogènes** (les segments) : les clients d'un même segment se ressemblent, les segments sont différents entre eux.\n\n### Quelles sont les 4 familles de critères de segmentation ?\n- **Sociodémographiques** : âge, revenu, profession\n- **Géographiques** : ville, quartier, zone de chalandise\n- **Psychographiques** : style de vie, valeurs, centres d'intérêt\n- **Comportementaux** : fréquence d'achat, montant, fidélité\n\n### Le style de vie d'un client : quel type de critère de segmentation ?\nUn critère **psychographique**.\n\n### Qu'est-ce que le SIC ?\nLe **système d'information commercial** : les outils, procédures et bases de données qui servent à collecter, stocker, traiter et diffuser les informations commerciales (clients, produits, prospects).\n\n### Que signifie RFM ?\n**R**écence, **F**réquence, **M**ontant. C'est une segmentation **comportementale**, faite à partir de l'historique d'achat enregistré dans le SIC.\n\n### Que mesure la récence ?\nLe **nombre de jours depuis le dernier achat**. Plus l'achat est récent, plus le client est réceptif.\n\n### Que mesurent la fréquence et le montant ?\n- **Fréquence** : le nombre d'achats sur la période (l'habitude, la fidélité).\n- **Montant** : le total dépensé sur la période (la valeur du client).\n\n### Comment calcule-t-on la récence d'un client ? #calcul\n**Récence = date de l'analyse − date du dernier achat** (en jours)\nDans le tableur, on soustrait les deux dates et on affiche la cellule au format nombre.\n> Analyse le 30/06 · dernier achat le 15/05\n> 16 jours en mai + 30 jours en juin = **46 jours**\n\n### Comment attribuer un score de récence avec la fonction SI ? #calcul\n**=SI(B2<=30;3;SI(B2<=90;2;1))**\n3 points jusqu'à 30 jours, 2 points jusqu'à 90 jours, sinon 1 point.\nAttention : pour la récence, **moins de jours = meilleur score**.\n> Client à 46 jours : 46 > 30, mais 46 ≤ 90 → score **2**\n\n### Combien de fonctions SI faut-il pour obtenir 3 réponses possibles ? #calcul\n**Nombre de SI = nombre de réponses − 1**\n> 3 scores possibles (1, 2 ou 3) → **2 SI** imbriqués\n\n### À quoi servent NB.SI et SOMME.SI ? #calcul\n- **NB.SI** compte les cellules qui remplissent une condition.\n- **SOMME.SI** additionne les montants des lignes qui remplissent une condition.\n> =NB.SI(E2:E21;\"Champions\") → nombre de clients « Champions »\n> =SOMME.SI(E2:E21;\"Champions\";D2:D21) → leur CA total\n\n### Comment calcule-t-on le poids d'un segment ? #calcul\n**Part des clients = clients du segment ÷ total des clients × 100**\n**Part du CA = CA du segment ÷ CA total × 100**\n> 5 clients sur 20 → 25 % des clients\n> 9 300 € sur 20 000 € → **46,5 % du CA**\n\n### Qui sont les clients « Champions » en RFM et que leur propose-t-on ?\nLes clients notés **R3 F3 M3**. On les récompense (avant-premières, cadeau) et on en fait des ambassadeurs (parrainage, avis).\n\n### Qui sont les clients « À risque » en RFM et que leur propose-t-on ?\nDes clients **R1** qui achetaient souvent (**F2 ou F3**). On les réactive en urgence : offre personnalisée, appel ou message « vous nous manquez ».\n\n### Qui sont les « Nouveaux » clients en RFM et que leur propose-t-on ?\nLes clients **R3 F1** : ils viennent d'acheter pour la première fois. On transforme l'essai avec une offre sur le 2e achat ou un message de bienvenue.\n\n### Pourquoi l'ordre des règles de segmentation compte-t-il ?\nUn client peut remplir deux règles. La **première règle testée l'emporte**.\n> Un client R1 F2 M3 est « À risque » et « Gros panier » : l'urgence (il part) passe avant la valeur.\n\n### Que faut-il vérifier avant d'envoyer un e-mail à un segment ?\nLe **consentement (opt-in)** du client pour ce canal, exigé par le **RGPD**. Un consentement non renseigné vaut refus.\n\n### Quelles sont les limites de la méthode RFM ?\n- Elle ne regarde que le **passé** (pas les besoins ni la satisfaction).\n- Les **seuils** dépendent du secteur.\n- Elle ignore les **produits achetés** et le **canal**.\n\n## 5 · Ciblage et positionnement\n\n### Que veut dire cibler ?\n**Choisir** le ou les segments sur lesquels l'entreprise concentre ses efforts. Le segment choisi s'appelle la **cible**.\n\n### Quelles sont les 3 qualités d'un bon segment cible ?\n- **Assez grand** ou assez rentable\n- **Accessible** : on peut joindre ces clients\n- **Compatible** avec l'entreprise : produits, vendeurs, budget\n\n### Qu'est-ce qu'un ciblage indifférencié ?\n**Une seule offre pour tout le monde.** C'est simple et peu coûteux, mais cela ne répond pas aux besoins particuliers.\n\n### Qu'est-ce qu'un ciblage différencié ?\n**Une offre adaptée à chaque segment** (une gamme running, une gamme mode, une gamme enfant). Cela répond à chaque besoin, mais coûte plus cher.\n\n### Qu'est-ce qu'un ciblage concentré ?\n**Une seule cible, très bien servie** (un magasin 100 % trail). L'entreprise devient experte, mais c'est risqué si la cible diminue.\n\n### Qu'est-ce que le cœur de cible ?\nLes clients **les plus importants** de la cible, ceux qu'on veut toucher en priorité.\n\n### Qu'est-ce qu'un prescripteur ?\nUne personne qui **influence l'achat** sans forcément acheter : un coach sportif, un influenceur, un parent.\n\n### Que veut dire positionner une offre ?\nDécider de la **place** qu'on veut occuper **dans l'esprit des clients**, **par rapport aux concurrents**. C'est la réponse à : « Pourquoi venir chez nous plutôt qu'ailleurs ? »\n\n### À quoi sert une carte de positionnement ?\nElle place les concurrents selon **deux critères** importants pour les clients (par exemple prix et conseil). On voit qui se ressemble et s'il reste une **place libre**.\n\n### Quelles sont les 4 qualités d'un bon positionnement ?\n**Simple** (une phrase), **attractif** (il répond aux attentes), **crédible** (l'entreprise peut le tenir), **différent** des concurrents.\n\n### Quelle est la différence entre positionnement voulu et positionnement perçu ?\n- **Voulu** : l'image que l'entreprise souhaite donner.\n- **Perçu** : l'image que les clients ont **réellement** (avis, réputation).\nSi l'écart est grand, il faut corriger les 4P.\n\n## 6 · Plan de marchéage : le produit\n\n### Que regroupe le P « Produit » ?\nLa gamme, les caractéristiques, la qualité, la marque, les **services associés** et le cycle de vie.\n\n### Quelle est la différence entre la largeur et la profondeur d'une gamme ?\n- **Largeur** : le nombre de lignes (familles) de produits.\n- **Profondeur** : le nombre de références dans une ligne.\n\n### Quelles sont les 4 phases du cycle de vie d'un produit ?\n**Lancement**, **croissance**, **maturité**, **déclin**.\n\n### Donnez trois exemples de services associés à un produit.\nLivraison, installation, garantie, service après-vente, retouches, essai, financement…\n\n### Qu'est-ce qu'une marque de distributeur (MDD) ?\nUne marque **créée et vendue par une enseigne** (et non par un fabricant), souvent moins chère que les grandes marques.\n\n### Que veut dire « un mix cohérent » ?\nLes 4P **se renforcent** entre eux et vont dans le sens du positionnement.\n> Cohérent : produit premium + prix maintenu + boutiques soignées + communication d'image.\n> Incohérent : produit de luxe + prix soldé + distribution discount.\n\n## 7 · Plan de marchéage : le prix\n\n### Que regroupe le P « Prix » ?\nLe niveau de prix, la stratégie de prix, les remises et les conditions de paiement.\n\n### Quelles sont les 3 contraintes qui pèsent sur la fixation d'un prix ?\nLes **coûts** (ne pas vendre à perte), la **demande** (ce que le client accepte de payer) et la **concurrence** (les prix des autres).\n\n### Qu'est-ce que le prix psychologique ?\nLe prix que la **majorité des clients** acceptent de payer : ni trop cher, ni trop bas (un prix trop bas fait douter de la qualité).\n\n### Quelles sont les 3 grandes stratégies de prix ?\n- **Écrémage** : prix élevé, pour une image haut de gamme.\n- **Pénétration** : prix bas, pour gagner vite des clients.\n- **Alignement** : prix proche de celui des concurrents.\n\n### Qu'est-ce qu'un produit d'appel ?\nUn produit à **prix très attractif**, mis en avant pour **faire venir les clients** en magasin, qui achèteront aussi d'autres produits.\n\n### Pourquoi calcule-t-on les marges en HT ?\nLa **TVA n'appartient pas au magasin** : il la collecte et la reverse à l'État.\n\n### Quels sont les taux de TVA en France ?\n- **20 %** : taux normal (la plupart des produits)\n- **10 %** : taux intermédiaire (restauration, transports)\n- **5,5 %** : taux réduit (alimentation, livres)\n- **2,1 %** : taux particulier (médicaments remboursés, presse)\n\n### Comment passe-t-on d'un prix HT à un prix TTC ? #calcul\n**PV TTC = PV HT × (1 + taux de TVA)**\n> PV HT 125 € · TVA 20 %\n> 125 × 1,20 = **150 € TTC**\n\n### Comment passe-t-on d'un prix TTC à un prix HT ? #calcul\n**PV HT = PV TTC ÷ (1 + taux de TVA)**\n> 150 ÷ 1,20 = **125 € HT**\n> Piège : 150 × 0,80 = 120 € est **faux** (on n'enlève pas 20 % du TTC).\n\n### Comment calcule-t-on le montant de la TVA ? #calcul\n**TVA = PV HT × taux de TVA** (ou PV TTC − PV HT)\n> 125 × 0,20 = **25 €** · vérification : 150 − 125 = 25 €\n\n### Comment calcule-t-on la marge unitaire ? #calcul\n**Marge unitaire = PV HT − coût d'achat HT**\n> PV HT 125 € · coût d'achat HT 70 €\n> 125 − 70 = **55 €**\n\n### Comment calcule-t-on le taux de marque ? #calcul\n**Taux de marque = marge unitaire ÷ PV HT × 100**\n> 55 ÷ 125 × 100 = **44 %**\n\n### Comment calcule-t-on le taux de marge ? #calcul\n**Taux de marge = marge unitaire ÷ coût d'achat HT × 100**\n> 55 ÷ 70 × 100 = **78,6 %**\n\n### Taux de marque ou taux de marge : quelle différence ? #calcul\nLa marge est la même, seul le **diviseur** change :\n- taux de **marque** → on divise par le **prix de vente HT** ;\n- taux de **marge** → on divise par le **coût d'achat HT**.\n> Même article : taux de marque 44 %, taux de marge 78,6 %\n\n### Comment calcule-t-on le coefficient multiplicateur ? #calcul\n**Coefficient = PV TTC ÷ coût d'achat HT**\nIl permet ensuite de calculer vite : PV TTC = coût d'achat HT × coefficient.\n> 150 ÷ 70 = **2,14**\n\n### Coût d'achat HT 40 €, coefficient 2,5 : quel prix de vente TTC ? #calcul\n**PV TTC = coût d'achat HT × coefficient**\n> 40 × 2,5 = **100 € TTC**\n\n### Comment trouver le PV HT à partir du coût d'achat et du taux de marque ? #calcul\n**PV HT = coût d'achat HT ÷ (1 − taux de marque)**\n> Coût d'achat 70 € · taux de marque 44 %\n> 70 ÷ (1 − 0,44) = 70 ÷ 0,56 = **125 € HT**\n\n### Comment trouver le PV HT à partir du coût d'achat et du taux de marge ? #calcul\n**PV HT = coût d'achat HT × (1 + taux de marge)**\n> Coût d'achat 80 € · taux de marge 25 %\n> 80 × 1,25 = **100 € HT**\n\n### Comment calcule-t-on la marge globale d'une opération ? #calcul\n**Marge globale = marge unitaire × quantité vendue**\n> 55 € × 48 paires = **2 640 €**\n\n### Comment calcule-t-on un prix après une réduction ? #calcul\n**Prix réduit = prix × (1 − taux de réduction)**\n> 150 € avec −20 % : 150 × 0,80 = **120 €**\n\n### Comment applique-t-on deux réductions successives ? #calcul\nOn les applique **l'une après l'autre**, on ne les additionne pas.\n> 100 € avec −10 % puis −5 % : 100 × 0,90 × 0,95 = **85,50 €**\n> (et non 85 € : la réduction totale est de 14,5 %, pas 15 %)\n\n### Comment calcule-t-on un taux de réduction ? #calcul\n**Taux de réduction = (ancien prix − nouveau prix) ÷ ancien prix × 100**\n> 80 € → 60 € : 20 ÷ 80 × 100 = **25 %**\n\n### Comment comparer son prix à celui d'un concurrent ? #calcul\n**Écart = (notre prix − prix du concurrent) ÷ prix du concurrent × 100**\n> Nous : 99 € · concurrent : 90 €\n> 9 ÷ 90 × 100 = **+10 %** (nous sommes 10 % plus chers)\n\n### Comment calcule-t-on le seuil de rentabilité ? #calcul\n**Seuil de rentabilité = charges fixes ÷ taux de marge sur coût variable**\nC'est le CA à partir duquel l'entreprise ne perd plus d'argent.\n> Charges fixes 30 000 € · taux de marge sur coût variable 40 %\n> 30 000 ÷ 0,40 = **75 000 € de CA**\n\n## 8 · Plan de marchéage : la distribution\n\n### Que regroupe le P « Place » (distribution) ?\nLes canaux de vente, les points de contact avec le client, la logistique et l'organisation **omnicanale**.\n\n### Quelle est la différence entre canal direct, court et long ?\n- **Direct** : du producteur au consommateur, sans intermédiaire.\n- **Court** : un seul intermédiaire (le détaillant).\n- **Long** : au moins deux intermédiaires (grossiste puis détaillant).\n\n### Quelle est la différence entre multicanal et omnicanal ?\n- **Multicanal** : plusieurs canaux qui fonctionnent séparément.\n- **Omnicanal** : les canaux sont **combinés** de façon cohérente ; le client passe de l'un à l'autre sans rupture.\n\n### Qu'est-ce que le click and collect ?\nLe client **commande en ligne** et **retire** sa commande en magasin.\n\n### Qu'est-ce que le marchandisage ?\nLes techniques de **présentation et de mise en valeur** des produits dans l'espace de vente pour vendre plus et améliorer l'expérience client. Trois dimensions : séduction, gestion, organisation.\n\n### Quelle est la différence entre zone chaude et zone froide ?\n- **Zone chaude** : très fréquentée naturellement (entrée, allée principale, caisses).\n- **Zone froide** : peu fréquentée (fond du magasin, angles). Il faut la « réchauffer » (animation, promotion, signalétique).\n\n### Quelle est la différence entre ILV et PLV ?\n- **ILV** : information sur le lieu de vente (prix, caractéristiques, signalétique).\n- **PLV** : publicité sur le lieu de vente (présentoir, affiche, kakémono).\n\n### Qu'est-ce que le facing ?\nLe nombre de produits identiques **visibles de face** dans le rayon.\n\n### Comment calcule-t-on un stock à prévoir avec une marge de sécurité ? #calcul\n**Besoin = ventes prévues × (1 + marge de sécurité)**, arrondi à l'unité **supérieure**.\n**À commander = besoin − stock disponible**\n> 14 paires prévues · +20 % · stock 6\n> 14 × 1,20 = 16,8 → 17 · 17 − 6 = **11 paires à commander**\n\n### Comment calcule-t-on un stock moyen ? #calcul\n**Stock moyen = (stock initial + stock final) ÷ 2**\n> (40 + 60) ÷ 2 = **50 articles**\n\n### Comment calcule-t-on le taux de rotation des stocks ? #calcul\n**Rotation = coût d'achat des marchandises vendues ÷ stock moyen au coût d'achat**\n**Durée moyenne de stockage = 360 ÷ rotation** (en jours)\n> 300 000 ÷ 50 000 = **6 rotations par an** · 360 ÷ 6 = **60 jours**\n\n### Comment calcule-t-on le CA au mètre linéaire ? #calcul\n**CA au mètre linéaire = CA du rayon ÷ longueur du linéaire développé (en m)**\n> 36 000 € ÷ 12 m = **3 000 € par mètre**\n\n### Comment calcule-t-on un taux de rupture ? #calcul\n**Taux de rupture = références en rupture ÷ références suivies × 100**\n> 6 références en rupture sur 120 → **5 %**\n\n### Comment calcule-t-on un taux de démarque ? #calcul\n**Taux de démarque = montant de la démarque ÷ CA × 100**\nLa démarque est l'écart entre le stock prévu et le stock réel (vol, casse, erreur).\n> 4 500 € ÷ 300 000 € × 100 = **1,5 %**\n\n## 9 · Plan de marchéage : la communication\n\n### Que regroupe le P « Promotion » (communication) ?\nLa publicité, les réseaux sociaux, les relations presse, l'événementiel et le bouche-à-oreille.\n\n### Quelle est la différence entre communication média et hors-média ?\n- **Média** : télévision, radio, presse, affichage, cinéma, Internet.\n- **Hors-média** : promotion des ventes, marketing direct, PLV, événementiel, salons, relations publiques.\n\n### Qu'est-ce que la promotion des ventes ?\nDes techniques qui **déclenchent l'achat rapidement** : réduction, lot, échantillon, jeu-concours, cadeau.\n\n### Qu'est-ce que le marketing direct ?\nUn message **personnalisé** envoyé directement à une cible (e-mail, SMS, courrier). Il faut le **consentement** du client (RGPD).\n\n### Qu'est-ce qu'une opération de création de trafic ?\nUne action qui fait **venir des clients** dans le point de vente : animation, événement, invitation, démonstration.\n\n### Comment calcule-t-on un taux de retour ? #calcul\n**Taux de retour = nombre de réponses ÷ nombre de messages envoyés × 100**\n> 90 réponses pour 1 500 e-mails → **6 %**\n\n### Comment calcule-t-on un coût par contact ? #calcul\n**Coût par contact = coût total de l'action ÷ nombre de personnes touchées**\n> 600 € ÷ 2 000 personnes = **0,30 €**\n\n### Comment calcule-t-on le coût d'acquisition d'un client ? #calcul\n**Coût d'acquisition = coût total de l'action ÷ nombre de nouveaux clients**\n> 600 € ÷ 40 nouveaux clients = **15 € par client**\n\n### Comment savoir si une action de communication est rentable ? #calcul\n**Résultat = marge générée par l'action − coût de l'action**\n> 40 achats × 25 € de marge = 1 000 € · 1 000 − 600 = **+400 €** : rentable\n\n### Comment calcule-t-on le taux de transformation d'une prospection téléphonique ? #calcul\n**Taux = rendez-vous obtenus ÷ appels passés × 100**\n> 12 rendez-vous pour 80 appels → **15 %**\n\n## 10 · Contrôle : les indicateurs de résultat\n\n### À quoi sert l'étape de contrôle ?\nÀ **mesurer** si l'action a atteint ses objectifs, avec des **indicateurs**, puis à ajuster. Les résultats nourrissent le diagnostic suivant.\n\n### Que signifie un objectif SMART ?\n**S**pécifique, **M**esurable, **A**tteignable, **R**éaliste, **T**emporellement défini (avec une date).\n\n### Les ventes ont augmenté : peut-on dire que l'opération est réussie ?\nPas forcément. Il faut analyser **chaque objectif séparément**, avec son propre indicateur.\n> Opération Air Max Day : objectif de ventes atteint, mais taux de transformation et ventes additionnelles en baisse.\n\n### Comment calcule-t-on le taux de transformation d'un magasin ? #calcul\n**Taux de transformation = nombre de tickets (acheteurs) ÷ nombre de visiteurs × 100**\n> 432 tickets pour 2 400 visiteurs → **18 %**\n\n### Comment calcule-t-on le panier moyen ? #calcul\n**Panier moyen = CA ÷ nombre de tickets**\n> 38 880 € ÷ 432 tickets = **90 €**\n\n### Comment calcule-t-on l'indice de vente (articles par ticket) ? #calcul\n**Indice de vente = nombre d'articles vendus ÷ nombre de tickets**\n> 648 articles ÷ 432 tickets = **1,5 article par ticket**\n\n### Comment calcule-t-on le prix moyen d'un article vendu ? #calcul\n**Prix moyen = CA ÷ nombre d'articles vendus**\n> 38 880 € ÷ 648 articles = **60 €**\n\n### Comment retrouver le CA à partir du trafic ? #calcul\n**CA = trafic × taux de transformation × panier moyen**\n> 2 400 × 18 % × 90 € = **38 880 €**\n\n### Un taux passe de 18 % à 17 %. Quelle évolution en points et en pourcentage ? #calcul\n- En **points** : 17 − 18 = **−1 point**\n- En **pourcentage** : (17 − 18) ÷ 18 × 100 = **−5,6 %**\nNe pas confondre les deux.\n\n### Comment calcule-t-on le taux de ventes additionnelles ? #calcul\n**Taux = ventes avec un article complémentaire ÷ ventes du produit principal × 100**\n> 12 ventes additionnelles pour 40 paires → **30 %**\n\n### Comment calcule-t-on un taux de réalisation de l'objectif ? #calcul\n**Taux de réalisation = résultat obtenu ÷ objectif × 100**\n> 52 paires vendues pour un objectif de 48 → **108,3 %**\n\n### Comment calcule-t-on un taux de fidélisation (réachat) ? #calcul\n**Taux de fidélisation = clients qui ont racheté ÷ clients de départ × 100**\n> 150 clients revenus sur 600 → **25 %**\n\n### Comment calcule-t-on un taux de satisfaction ? #calcul\n**Taux de satisfaction = clients satisfaits ÷ clients qui ont répondu × 100**\n> 171 satisfaits sur 180 réponses → **95 %**\n";
+const PLANNING = { 1: [1], 2: [1, 2], 3: [1], 4: [1, 2, 3], 5: [1, 4], 6: [1, 2, 5], 0: [1, 3, 6] };
+const JOURS = [[1, 'Lundi'], [2, 'Mardi'], [3, 'Mercredi'], [4, 'Jeudi'], [5, 'Vendredi'], [6, 'Samedi'], [0, 'Dimanche']];
+const MOIS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+const deck = parseCartes(MD);
+const actifs = new Set(deck.themes.map((t) => t.nom));
+document.getElementById('aide-titre').textContent = 'Cartes à imprimer · ' + deck.titre;
+
+function notice() {
+  const lignes = [1, 2, 3, 4, 5, 6].map((b) => '<tr><th>C' + b + '</th>' + JOURS.map(([d]) => PLANNING[d].includes(b) ? '<td class="oui">' + b + '</td>' : '<td></td>').join('') + '</tr>').join('');
+  return '<section class="feuille"><div class="notice">' +
+    '<header><div><h1>Ma boîte de Leitner</h1><p>' + echapper(deck.titre.replace(/^Boîte de Leitner\s*[—-]\s*/, '')) + ' · ' + deck.cartes.length + ' cartes</p></div></header>' +
+    '<div><h2>La boîte</h2><p>Une boîte à <strong>6 compartiments</strong>. Plus le numéro est grand, moins les cartes reviennent souvent. Les nouvelles cartes entrent toujours dans le <strong>compartiment 1</strong>.</p></div>' +
+    '<div><h2>À chaque séance</h2><ol>' +
+      '<li>Je lis la question <strong>sans regarder le verso</strong>.</li>' +
+      '<li>Je dis la réponse dans ma tête. Pour un calcul, je l\'écris au brouillon.</li>' +
+      '<li>Je retourne la carte et je vérifie.</li>' +
+      '<li><strong>Bonne réponse</strong> : la carte <strong>monte</strong> dans le compartiment suivant.</li>' +
+      '<li><strong>Mauvaise réponse</strong> : la carte <strong>retourne au compartiment 1</strong>. Elle revient dès demain.</li>' +
+      '<li>Une carte réussie dans le compartiment 6 sort de la boîte : elle est <strong>maîtrisée</strong>.</li>' +
+    '</ol></div>' +
+    '<div><h2>Planning de la semaine : quels compartiments ouvrir ?</h2><table class="semaine"><thead><tr><th></th>' +
+      JOURS.map(([, n]) => '<th>' + n + '</th>').join('') + '</tr></thead><tbody>' + lignes + '</tbody></table></div>' +
+    '<div><h2>Rythme de chaque compartiment</h2><table class="rythme"><tbody>' +
+      '<tr><td>Compartiment 1</td><td>tous les jours : cartes nouvelles ou ratées</td></tr>' +
+      '<tr><td>Compartiment 2</td><td>3 fois par semaine (mardi, jeudi, samedi)</td></tr>' +
+      '<tr><td>Compartiment 3</td><td>2 fois par semaine (jeudi, dimanche)</td></tr>' +
+      '<tr><td>Compartiments 4, 5, 6</td><td>1 fois par semaine (vendredi, samedi, dimanche)</td></tr>' +
+    '</tbody></table></div>' +
+    '<div><h2>Mes conseils pour écrire une nouvelle carte</h2><ol>' +
+      '<li>Une carte = <strong>une seule notion</strong>.</li>' +
+      '<li>Une question claire, comme si j\'interrogeais quelqu\'un.</li>' +
+      '<li>Une réponse courte : un mot, une phrase, une formule, un chiffre.</li>' +
+      '<li>J\'écris mes cartes à la fin de la séance, quand c\'est encore frais.</li>' +
+    '</ol></div>' +
+  '</div></section>';
+}
+
+function annee() {
+  const now = new Date();
+  const debut = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+  let h = '<section class="feuille"><div class="notice"><header><div><h1>Mon planning annuel ' + debut + '-' + (debut + 1) + '</h1><p>Je coche la case du jour après chaque séance.</p></div></header>' +
+    '<table class="annee"><thead><tr><th class="mois"></th>';
+  for (let d = 1; d <= 31; d++) h += '<th>' + d + '</th>';
+  h += '</tr></thead><tbody>';
+  for (let k = 0; k < 12; k++) {
+    const m = (8 + k) % 12, a = m >= 8 ? debut : debut + 1;
+    const nbj = new Date(a, m + 1, 0).getDate();
+    h += '<tr><th class="mois">' + MOIS[m] + '</th>';
+    for (let d = 1; d <= 31; d++) {
+      if (d > nbj) { h += '<td class="x"></td>'; continue; }
+      const j = new Date(a, m, d).getDay();
+      h += '<td class="' + (j === 0 || j === 6 ? 'we' : '') + '"></td>';
+    }
+    h += '</tr>';
+  }
+  h += '</tbody></table><p style="font-size:9pt;color:var(--doux)">Les cases teintées sont les samedis et dimanches. Le jeudi et le dimanche sont les séances les plus longues (3 compartiments).</p></div></section>';
+  return h;
+}
+
+function recto(c) {
+  if (!c) return '<div class="carte vide"></div>';
+  return '<div class="carte recto' + (c.calcul ? ' calcul' : '') + '"><span class="bande"></span>' +
+    '<div class="haut"><span>' + echapper(c.theme) + '</span>' + (c.calcul ? '<span class="tag">Calcul</span>' : '') + '</div>' +
+    '<div class="contenu">' + enLigne(c.q) + '</div></div>';
+}
+function verso(c) {
+  if (!c) return '<div class="carte vide"></div>';
+  return '<div class="carte verso"><div class="haut"><span class="rappel">' + enLigne(c.q) + '</span></div>' +
+    '<div class="contenu">' + mdVersHtml(c.reponse) +
+    (c.exemple.length ? '<div class="ex">' + mdVersHtml(c.exemple) + '</div>' : '') + '</div></div>';
+}
+
+function ajuster() {
+  document.querySelectorAll('.carte .contenu').forEach((el) => {
+    let taille = parseFloat(getComputedStyle(el).fontSize);
+    while (el.scrollHeight > el.clientHeight + 1 && taille > 7) { taille -= 0.4; el.style.fontSize = taille + 'px'; }
+  });
+}
+
+function rendre() {
+  const cartes = deck.cartes.filter((c) => actifs.has(c.theme));
+  document.getElementById('compte').textContent = '· ' + cartes.length + ' cartes, ' + Math.ceil(cartes.length / 8) * 2 + ' pages';
+  let h = document.getElementById('avec-notice').checked ? notice() + annee() : '';
+  for (let p = 0; p < cartes.length; p += 8) {
+    const lot = cartes.slice(p, p + 8);
+    let r = '', v = '';
+    for (let row = 0; row < 4; row++) {
+      r += recto(lot[row * 2]) + recto(lot[row * 2 + 1]);
+      // Au verso, gauche et droite sont inversées pour une impression recto verso bord long.
+      v += verso(lot[row * 2 + 1]) + verso(lot[row * 2]);
+    }
+    h += '<section class="feuille"><div class="grille">' + r + '</div></section>';
+    h += '<section class="feuille"><div class="grille">' + v + '</div></section>';
+  }
+  document.getElementById('feuilles').innerHTML = h;
+  ajuster();
+}
+
+document.getElementById('choix').innerHTML = deck.themes.map((t, i) =>
+  '<label><input type="checkbox" id="t' + i + '" checked> ' + echapper(t.nom) + ' (' + t.cartes.length + ')</label>').join('');
+deck.themes.forEach((t, i) => {
+  document.getElementById('t' + i).onchange = (ev) => { ev.target.checked ? actifs.add(t.nom) : actifs.delete(t.nom); rendre(); };
+});
+document.getElementById('avec-notice').onchange = rendre;
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(rendre); else rendre();
+</script>
+</body>
+</html>

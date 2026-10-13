@@ -1,0 +1,24 @@
+{
+  "name": "Boîtes de Leitner",
+  "short_name": "Leitner",
+  "description": "Flash-cards à réviser chaque jour : démarche mercatique et économie-droit.",
+  "lang": "fr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#692073",
+  "icons": [
+    {
+      "src": "icone-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icone-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

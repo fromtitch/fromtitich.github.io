@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartes à imprimer — Leitner économie-droit</title>
+<style>
+/* Feuilles A4 portrait : notice, plannings, puis planches de 8 cartes (recto) suivies de leur verso en miroir. Charte NOMADE, fond blanc. */
+:root {
+  --encre: #1A1A1A; --doux: #5E5366; --trait: #CDBFD4; --prune: #692073; --magenta: #B141BF;
+  --lavande: #DFB3F2; --cyan: #0DB3D9; --cyan-encre: #05677F; --exemple: #EAF8FC; --fond: #FFFFFF;
+  --police: Verdana, "DejaVu Sans", Geneva, Tahoma, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { background: #E9E4EC; margin: 0; }
+body { font-family: var(--police); color: var(--encre); }
+@page { size: A4 portrait; margin: 0; }
+
+.aide { max-width: 210mm; margin: 16px auto; padding: 16px; background: var(--fond); border-radius: 8px; font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 8px; }
+.aide h1 { font-size: 18px; color: var(--prune); margin: 0; }
+.aide ul { margin: 0; padding-left: 1.2em; }
+.aide .themes { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.aide label { cursor: pointer; }
+
+.feuille { width: 210mm; height: 296.5mm; margin: 0 auto 10mm; background: var(--fond); padding: 13.25mm 10mm; overflow: hidden; position: relative; page-break-after: always; break-after: page; }
+.grille { display: grid; grid-template-columns: 95mm 95mm; grid-template-rows: repeat(4, 67.5mm); }
+.carte { border: 0.3mm dashed var(--trait); padding: 4mm 5mm; display: flex; flex-direction: column; gap: 2mm; overflow: hidden; position: relative; }
+.carte .haut { display: flex; justify-content: space-between; font-size: 6.5pt; color: var(--doux); letter-spacing: .03em; }
+.carte .tag { border: 0.3mm solid var(--cyan); color: var(--cyan-encre); border-radius: 2mm; padding: 0 1.5mm; }
+.carte .contenu { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 1.4mm; font-size: 9pt; line-height: 1.32; }
+.recto .contenu { justify-content: center; text-align: center; font-size: 12pt; font-weight: bold; color: var(--prune); }
+.recto .bande { position: absolute; left: 0; top: 0; bottom: 0; width: 2.2mm; background: var(--lavande); }
+.recto.calcul .bande { background: var(--cyan); }
+.verso .contenu p { margin: 0; }
+.verso .contenu ul { margin: 0; padding-left: 4mm; }
+.verso strong { color: var(--prune); }
+.verso .ex { background: var(--exemple); border-left: 1mm solid var(--cyan); padding: 1.2mm 2mm; font-size: .92em; display: flex; flex-direction: column; gap: .6mm; }
+.verso .ex strong { color: var(--cyan-encre); }
+.verso .rappel { font-size: 6.5pt; color: var(--doux); }
+code { font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: .92em; }
+.vide { border-color: transparent; }
+
+/* Notice et plannings */
+.notice { display: flex; flex-direction: column; gap: 6mm; font-size: 10.5pt; line-height: 1.45; }
+.notice header { display: flex; align-items: center; gap: 5mm; border-bottom: 1mm solid var(--prune); padding-bottom: 4mm; }
+.notice h1 { font-size: 18pt; color: var(--prune); margin: 0; }
+.notice h2 { font-size: 12pt; color: var(--prune); margin: 0 0 2mm; }
+.notice ol { margin: 0; padding-left: 6mm; display: flex; flex-direction: column; gap: 1.5mm; }
+.notice p { margin: 0; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.semaine th, .semaine td { border: 0.3mm solid var(--trait); text-align: center; padding: 2mm 1mm; font-size: 10pt; }
+.semaine thead th { background: var(--prune); color: #fff; }
+.semaine td.oui { background: var(--lavande); font-weight: bold; }
+.rythme td { padding: 1.2mm 2mm; border-bottom: 0.3mm solid var(--trait); font-size: 9.5pt; }
+.annee th, .annee td { border: 0.25mm solid var(--trait); width: 5.4mm; height: 6.6mm; font-size: 6.5pt; text-align: center; padding: 0; }
+.annee th.mois { width: 15mm; text-align: left; padding-left: 1.5mm; font-size: 8pt; color: var(--prune); }
+.annee td.x { background: repeating-linear-gradient(45deg, #fff, #fff 1mm, #EEE 1mm, #EEE 2mm); }
+.annee td.we { background: #F7F2FA; }
+
+@media print {
+  html, body { background: #fff; }
+  .aide { display: none; }
+  .feuille { margin: 0; }
+}
+</style>
+</head>
+<body>
+<div class="aide" id="aide">
+  <a href="../index.html" style="color:var(--doux);font-size:13px">← Toutes les boîtes</a>
+  <h1 id="aide-titre">Cartes à imprimer</h1>
+  <ul>
+    <li>Imprimer avec <strong>Ctrl + P</strong>, format <strong>A4</strong>, échelle <strong>100 %</strong>, marges <strong>aucune</strong>, <strong>recto verso bord long</strong>.</li>
+    <li>Chaque planche de questions est suivie de la planche des réponses, placée en miroir pour tomber au dos de la bonne carte.</li>
+    <li>Découper en suivant les pointillés. Une bande cyan signale une carte de calcul.</li>
+    <li>Pour modifier les cartes : éditer <code>cartes.md</code>, puis relancer <code>python3 generer.py</code>.</li>
+  </ul>
+  <div><strong>Thèmes à imprimer</strong> <span id="compte"></span></div>
+  <div class="themes" id="choix"></div>
+  <label><input type="checkbox" id="avec-notice" checked> Imprimer la notice et les plannings (2 pages)</label>
+</div>
+<div id="feuilles"></div>
+
+<script>
+// Lecture du fichier cartes.md — partagé par l'application et la page d'impression.
+// Format : "## Thème", "### Question #calcul", lignes de réponse, lignes "> " = exemple.
+
+function hashTexte(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+
+function parseCartes(md) {
+  const lignes = md.replace(/\r/g, '').split('\n');
+  let i = 0;
+  let titre = 'Boîte de Leitner';
+  if (lignes[0] && lignes[0].trim() === '---') {
+    for (i = 1; i < lignes.length && lignes[i].trim() !== '---'; i++) {
+      const m = lignes[i].match(/^titre:\s*(.+)$/);
+      if (m) titre = m[1].trim().replace(/^["']|["']$/g, '');
+    }
+    i++;
+  }
+  const themes = [];
+  const vus = {};
+  let theme = null;
+  let carte = null;
+  let commentaire = false;
+  for (; i < lignes.length; i++) {
+    let L = lignes[i].replace(/%%.*?%%/g, '');
+    if (L.includes('%%')) { commentaire = !commentaire; continue; }
+    if (commentaire) continue;
+    if (/^## /.test(L)) {
+      theme = { nom: L.slice(3).trim(), cartes: [] };
+      themes.push(theme);
+      carte = null;
+      continue;
+    }
+    if (/^### /.test(L)) {
+      if (!theme) { theme = { nom: 'Sans thème', cartes: [] }; themes.push(theme); }
+      let q = L.slice(4).trim();
+      const calcul = /(^|\s)#calcul(?=\s|$)/.test(q);
+      q = q.replace(/(^|\s)#calcul(?=\s|$)/g, '').trim();
+      let id = hashTexte(q);
+      if (vus[id]) id += '-' + (++vus[id]); else vus[id] = 1;
+      carte = { id, q, calcul, reponse: [], exemple: [], theme: theme.nom };
+      theme.cartes.push(carte);
+      continue;
+    }
+    if (/^#{1,6} /.test(L)) { carte = null; continue; }
+    if (!carte) continue;
+    if (/^>/.test(L)) { carte.exemple.push(L.replace(/^>\s?/, '')); continue; }
+    carte.reponse.push(L);
+  }
+  const nettoyer = (t) => {
+    while (t.length && !t[0].trim()) t.shift();
+    while (t.length && !t[t.length - 1].trim()) t.pop();
+    return t;
+  };
+  const resultat = themes.filter((t) => t.cartes.length);
+  resultat.forEach((t) => t.cartes.forEach((c) => { nettoyer(c.reponse); nettoyer(c.exemple); }));
+  return { titre, themes: resultat, cartes: resultat.flatMap((t) => t.cartes) };
+}
+
+function echapper(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function enLigne(s) {
+  return echapper(s)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/(^|[\s(])\*(?!\s)(.+?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>')
+    // Typographie française : espace insécable avant ? ! : ; » et après «
+    .replace(/ ([?!:;»])/g, ' $1')
+    .replace(/« /g, '« ');
+}
+
+// Petit rendu Markdown : paragraphes, listes à puces, gras, italique, code.
+function mdVersHtml(lignes) {
+  let html = '';
+  let liste = false;
+  for (const brute of lignes) {
+    const L = brute.trim();
+    if (/^[-*] /.test(L)) {
+      if (!liste) { html += '<ul>'; liste = true; }
+      html += '<li>' + enLigne(L.slice(2)) + '</li>';
+      continue;
+    }
+    if (liste) { html += '</ul>'; liste = false; }
+    if (L) html += '<p>' + enLigne(L) + '</p>';
+  }
+  if (liste) html += '</ul>';
+  return html;
+}
+
+
+const MD = "---\ntitre: Boîte de Leitner — Économie-droit\ndiplomes: [MCV, MA]\nniveau: Seconde, première et terminale bac pro tertiaire\nprogramme: BO spécial n°5 du 11 avril 2019\ndate_created: 2026-10-13\ndate_updated: 2026-10-13\n---\n\n# Boîte de Leitner — Économie-droit\n\n> [!info] Comment modifier les cartes\n> - `## Titre` : un **thème** (une question du programme). Les thèmes entrent dans la boîte dans cet ordre.\n> - `### Question` : le **recto** d'une carte. Ajouter `#calcul` à la fin pour une carte de calcul.\n> - Les lignes qui suivent : le **verso** (la réponse). On peut écrire en **gras** et faire des listes avec `- `.\n> - Une ligne qui commence par `>` : l'**exemple**, affiché dans un encadré sous la réponse.\n> - Après une modification, lancer `python3 generer.py` dans ce dossier (voir [[Cours/Économie-droit/Boîte de Leitner - Économie-droit/LISEZMOI|LISEZMOI]]).\n>\n> Les modules 2, 3 et 4 peuvent être traités dans l'ordre choisi par l'enseignant : l'élève coche les thèmes au fil des séances.\n\n## 1.1 · Les agents économiques et leurs échanges\n\n### Qu'est-ce qu'un agent économique ?\nUne personne ou un groupe qui prend des **décisions économiques** : produire, consommer, épargner, prêter.\n\n### Quels sont les 5 agents économiques ?\nLes **ménages**, les **entreprises**, les **institutions financières**, les **administrations publiques** et le **reste du monde**.\n\n### Quel est le rôle principal des ménages ?\n**Consommer** des biens et des services. Ils fournissent aussi leur **travail** et **épargnent** une partie de leur revenu.\n\n### Quel est le rôle principal des entreprises ?\n**Produire** des biens et des services **marchands**, vendus sur un marché, pour réaliser un **profit**.\n\n### Quel est le rôle principal des administrations publiques ?\nProduire des **services non marchands** (école, santé, sécurité) et **redistribuer** les revenus. Elles sont financées par les **prélèvements obligatoires**.\n\n### Quel est le rôle des institutions financières ?\n**Collecter l'épargne**, **accorder des crédits** et gérer les moyens de paiement. Ce sont les banques et les assurances.\n\n### Qu'appelle-t-on le « reste du monde » ?\nLes agents **étrangers** en relation avec les agents du pays : ils achètent nos **exportations** et nous vendent nos **importations**.\n\n### Quelle est la différence entre un flux réel et un flux monétaire ?\n- **Flux réel** : des biens, des services ou du travail.\n- **Flux monétaire** : l'argent versé en contrepartie.\n> Le salarié fournit son travail (flux réel) et reçoit un salaire (flux monétaire).\n\n### Quelle est la différence entre production marchande et non marchande ?\n- **Marchande** : vendue sur un marché à un prix qui couvre au moins les coûts (une baguette).\n- **Non marchande** : gratuite ou presque, financée par les prélèvements obligatoires (l'école publique).\n\n### Qu'est-ce qu'un marché ?\nLe lieu, réel ou virtuel, où se rencontrent l'**offre** et la **demande** d'un bien ou d'un service. Cette rencontre fixe un **prix**.\n\n### Quels sont les 3 grands marchés de l'économie ?\nLe marché des **biens et services**, le marché du **travail** et le marché des **capitaux**.\n\n### Sur le marché du travail, qui offre et qui demande ?\n- Les **ménages** offrent leur travail.\n- Les **entreprises** demandent du travail (elles embauchent).\n\n### Quelle est la différence entre consommation finale et consommation intermédiaire ?\n- **Finale** : les biens et services utilisés par les ménages pour satisfaire leurs besoins.\n- **Intermédiaire** : les biens et services transformés ou détruits pour produire (la farine pour le boulanger).\n\n## 1.2 · Le cadre juridique\n\n### Qu'est-ce que le droit ?\nL'ensemble des **règles** qui organisent la vie en société. L'État en garantit le respect, si besoin par une **sanction**.\n\n### Quels sont les caractères de la règle de droit ?\nElle est **générale et impersonnelle** (elle s'applique à tous), **obligatoire** et **coercitive** (sanctionnée par l'autorité publique).\n\n### Quelles sont les fonctions du droit ?\n- **Organiser** la vie en société\n- **Protéger** les personnes et leurs biens\n- **Régler les conflits** de façon pacifique\n- **Sécuriser** les échanges\n\n### Qu'est-ce qu'un État de droit ?\nUn État où **tout le monde, y compris l'État lui-même, est soumis au droit** : respect de la hiérarchie des normes, séparation des pouvoirs, juges indépendants.\n\n### Qu'est-ce que la Constitution ?\nLe **texte fondamental** de l'État. Il organise les pouvoirs publics et garantit les droits et libertés. En France : la Constitution du **4 octobre 1958** (Ve République).\n\n### Dans quel ordre se classent les normes juridiques en France ?\n- 1 · La **Constitution**\n- 2 · Les **traités internationaux** et le **droit de l'Union européenne**\n- 3 · Les **lois**\n- 4 · Les **règlements** : décrets, puis arrêtés\nChaque norme doit respecter les normes placées au-dessus d'elle.\n\n### Que dit le principe de la hiérarchie des normes ?\nUne règle de droit doit **respecter les règles supérieures**. Un arrêté contraire à une loi peut être annulé par le juge.\n\n### Qui vote les lois ? Qui signe les décrets ?\n- Les **lois** : le **Parlement** (Assemblée nationale et Sénat).\n- Les **décrets** : le **Premier ministre** ou le **Président de la République**.\n\n### Quelle est la différence entre un règlement européen et une directive européenne ?\n- **Règlement** : il s'applique **directement** dans tous les pays de l'UE (exemple : le RGPD).\n- **Directive** : elle fixe un objectif ; chaque pays doit la **transposer** dans sa loi.\n\n### Quels sont les deux ordres de juridictions en France ?\n- L'ordre **judiciaire** : litiges entre personnes privées et infractions.\n- L'ordre **administratif** : litiges avec une administration.\n\n### Quel tribunal juge un litige entre un salarié et son employeur ?\nLe **conseil de prud'hommes**.\n\n### Quelles juridictions jugent les infractions pénales ?\n- **Tribunal de police** : les contraventions\n- **Tribunal correctionnel** : les délits\n- **Cour d'assises** : les crimes\n\n### Quelles sont les voies de recours après un premier jugement ?\n- L'**appel** devant la **cour d'appel** : l'affaire est rejugée.\n- Le **pourvoi** devant la **Cour de cassation** : elle vérifie que le droit a été bien appliqué, sans rejuger les faits.\nDans l'ordre administratif : tribunal administratif, cour administrative d'appel, **Conseil d'État**.\n\n## 1.3 · Le contrat\n\n### Qu'est-ce qu'un contrat ?\nUn **accord de volontés** entre deux personnes ou plus, destiné à créer, modifier, transmettre ou éteindre des **obligations** (article 1101 du Code civil).\n\n### Quelles sont les 3 conditions de validité d'un contrat ?\n- Le **consentement** des parties\n- La **capacité** de contracter\n- Un **contenu licite et certain**\n\n### Quels sont les vices du consentement ?\nL'**erreur**, le **dol** (une tromperie volontaire) et la **violence** (une contrainte). Ils peuvent entraîner la nullité du contrat.\n\n### Que signifie la force obligatoire du contrat ?\nLe contrat **s'impose aux parties comme une loi** : elles doivent l'exécuter (article 1103 du Code civil).\n\n### Qu'est-ce qu'un contrat synallagmatique ?\nUn contrat où chaque partie a des **obligations réciproques**.\n> Dans une vente, le vendeur livre le bien et l'acheteur paie le prix.\n\n### Quelles sont les obligations du vendeur et de l'acheteur dans un contrat de vente ?\n- **Vendeur** : délivrer le bien et le garantir (conformité, vices cachés).\n- **Acheteur** : payer le prix et prendre livraison.\n\n### Quelle est la différence entre une obligation de moyens et une obligation de résultat ?\n- **Moyens** : tout mettre en œuvre, sans garantir le résultat (un médecin).\n- **Résultat** : atteindre le résultat promis (un transporteur doit livrer le colis).\n\n### Quelles sont les 3 conditions de la responsabilité civile contractuelle ?\n- Une **inexécution** (ou mauvaise exécution) du contrat\n- Un **dommage**\n- Un **lien de causalité** entre les deux\n\n### Que sont les dommages-intérêts ?\nUne **somme d'argent** versée à la victime pour **réparer** le préjudice subi.\n\n### Quels sont les 3 types de dommages ?\n**Matériel** (un bien abîmé, une perte d'argent), **corporel** (une blessure) et **moral** (une souffrance, une atteinte à la réputation).\n\n## 2.1 · Revenus, consommation et épargne\n\n### Quels sont les 3 types de revenus primaires ?\n- **Revenus d'activité** : salaires\n- **Revenus de la propriété** : loyers, intérêts, dividendes\n- **Revenus mixtes** : ceux des indépendants (artisans, commerçants), qui rémunèrent à la fois leur travail et leur capital\n\n### Que sont les revenus de transfert ?\nLes **prestations sociales** versées aux ménages : allocations familiales, allocations chômage, retraites, aides au logement.\n\n### Que sont les prélèvements obligatoires ?\nLes **impôts** et les **cotisations sociales** versés aux administrations publiques.\n\n### Comment calcule-t-on le revenu disponible ? #calcul\n**Revenu disponible = revenus primaires + revenus de transfert − prélèvements obligatoires**\n> 2 500 € + 300 € − 600 € = **2 200 €**\n\n### À quoi sert le revenu disponible ?\nÀ **consommer** et à **épargner**.\n**Revenu disponible = consommation + épargne**\n\n### Comment calcule-t-on un coefficient budgétaire ? #calcul\n**Coefficient budgétaire = dépense pour un poste ÷ dépense totale de consommation × 100**\n> Alimentation 440 € sur 2 000 € de consommation\n> 440 ÷ 2 000 × 100 = **22 %**\n\n### Comment calcule-t-on le taux d'épargne ? #calcul\n**Taux d'épargne = épargne ÷ revenu disponible × 100**\n> Revenu disponible 2 200 € · consommation 1 980 € · épargne 220 €\n> 220 ÷ 2 200 × 100 = **10 %**\n\n### Que sont les dépenses pré-engagées ?\nLes dépenses **difficiles à réduire à court terme**, car fixées par un contrat : loyer, énergie, assurances, abonnements téléphone et internet.\n\n### Quelles sont les grandes formes d'épargne ?\n- L'épargne **disponible** : compte, livret A\n- L'épargne **financière** : assurance-vie, actions\n- L'épargne **immobilière** : l'achat d'un logement\n\n### Qu'est-ce qu'un crédit et quel est son effet sur le budget ?\nUne somme **prêtée par une banque**, à rembourser avec des **intérêts**. Il permet de consommer ou d'investir tout de suite, mais **réduit le revenu disponible des mois suivants**.\n\n### Comment calcule-t-on le coût d'un crédit ? #calcul\n**Coût du crédit = total remboursé − somme empruntée**\n> 5 000 € empruntés · 24 mensualités de 220 €\n> 24 × 220 = 5 280 € · 5 280 − 5 000 = **280 €**\n\n### Comment calcule-t-on un taux d'endettement ? #calcul\n**Taux d'endettement = mensualités de crédit ÷ revenus mensuels × 100**\nLes banques limitent en général ce taux à 35 %.\n> 700 € de mensualités pour 2 200 € de revenus\n> 700 ÷ 2 200 × 100 = **31,8 %**\n\n### Qu'est-ce que le pouvoir d'achat ?\nLa **quantité de biens et de services** qu'on peut acheter avec son revenu. Il augmente si les revenus progressent **plus vite que les prix**.\n\n## 2.2 · Les nouveaux modes de consommation\n\n### Qu'est-ce que le développement durable ?\nUn développement qui **répond aux besoins du présent sans compromettre ceux des générations futures** (rapport Brundtland, 1987). Trois piliers : **économique**, **social**, **environnemental**.\n\n### Qu'est-ce que la consommation responsable ?\nAcheter en tenant compte de l'impact sur l'**environnement**, l'**économie locale** et la **santé** : produits locaux, durables, réparables, labellisés.\n\n### Qu'est-ce que l'économie circulaire ?\nUne économie qui limite le gaspillage : **réemploi, réparation, recyclage**. Elle s'oppose à l'économie linéaire : extraire, fabriquer, consommer, jeter.\n\n### Que veut dire passer de la propriété à l'usage ?\n**Payer pour utiliser un bien** au lieu de l'acheter : location, abonnement, partage.\n> Vélos en libre-service, location de vêtements, autopartage.\n\n### Qu'est-ce qu'une place de marché (marketplace) ?\nUn **site internet qui accueille des vendeurs tiers** et les met en relation avec des acheteurs, contre une **commission** sur chaque vente.\n\n### Qu'est-ce que l'e-commerce ?\nLa **vente de biens et de services par Internet**, sur ordinateur ou sur mobile.\n\n### Comment le numérique change-t-il la façon de consommer ?\nLe consommateur **compare les prix**, lit les **avis**, achète **à toute heure**, revend ou achète **d'occasion** entre particuliers, se fait livrer ou retire en magasin.\n\n### Citez trois labels qui guident une consommation responsable.\n**Agriculture biologique (AB)**, **Écolabel européen**, **commerce équitable** (Fairtrade / Max Havelaar).\n\n### Qu'est-ce que l'obsolescence programmée ?\nLe fait de **réduire volontairement la durée de vie** d'un produit pour pousser à en racheter un. C'est un **délit** en France depuis 2015.\n\n### À quoi sert l'indice de réparabilité ?\nÀ informer l'acheteur, par une **note sur 10**, de la facilité à **réparer** un appareil électronique. Il est obligatoire depuis 2021.\n\n## 2.3 · La protection du consommateur\n\n### Qui est un consommateur au sens du droit ?\nUne **personne physique** qui achète pour ses **besoins personnels**, en dehors de son activité professionnelle.\n\n### Qu'est-ce que l'asymétrie d'information ?\nLe **vendeur en sait plus** que l'acheteur sur le produit. Le droit rétablit l'équilibre par une **obligation d'information**.\n\n### Que doit indiquer le vendeur avant la vente ?\nLes **caractéristiques essentielles** du bien, le **prix TTC**, le **délai de livraison**, son **identité** et les **garanties**.\n\n### Qu'est-ce que le droit de rétractation ?\nLe droit d'**annuler un achat** fait **à distance** (internet, téléphone) ou **hors établissement** (démarchage), **sans motif** et sans pénalité, dans un délai de **14 jours**.\n\n### A-t-on un droit de rétractation pour un achat en magasin ?\n**Non.** Un échange ou un remboursement en magasin est un **geste commercial**, pas une obligation légale.\n\n### Un colis commandé en ligne est reçu le 3 mars. Jusqu'à quand peut-on se rétracter ? #calcul\n**14 jours à compter de la réception** du bien.\n> 3 mars + 14 jours = **17 mars**\n\n### Qu'est-ce que la garantie légale de conformité ?\nLe vendeur doit livrer un bien **conforme** au contrat. Pour un bien neuf, elle dure **2 ans** après la livraison : **réparation ou remplacement**, sinon remboursement.\n\n### Qu'est-ce que la garantie des vices cachés ?\nUne protection contre un **défaut caché**, qui existait **avant la vente** et rend le bien **impropre à son usage**. L'action doit être engagée dans les **2 ans** suivant la découverte du défaut.\n\n### Qu'est-ce qu'une garantie commerciale ?\nUne garantie **facultative**, gratuite ou payante, proposée par le vendeur ou le fabricant. Elle **s'ajoute** aux garanties légales, sans les remplacer.\n\n### Quel organisme contrôle le respect du droit de la consommation ?\nLa **DGCCRF** : Direction générale de la concurrence, de la consommation et de la répression des fraudes.\n\n### Qu'est-ce qu'une donnée personnelle ?\nToute information qui permet d'**identifier une personne**, directement ou indirectement : nom, adresse e-mail, téléphone, photo, adresse IP.\n\n### Qu'est-ce que le RGPD ?\nLe **Règlement général sur la protection des données**, texte européen applicable depuis le **25 mai 2018**.\n\n### Quels sont les grands principes de la protection des données personnelles ?\n- Une **finalité** précise et annoncée\n- Le **consentement** de la personne (ou une autre base légale)\n- La **minimisation** : seulement les données utiles\n- Une **durée de conservation** limitée\n- La **sécurité** des données\n\n### Quels sont les droits d'une personne sur ses données ?\n**Accès**, **rectification**, **effacement**, **opposition** et **portabilité**.\n\n### Qu'est-ce que la CNIL ?\nLa **Commission nationale de l'informatique et des libertés** : une autorité administrative indépendante qui **conseille, contrôle et sanctionne** pour la protection des données.\n\n### Quelle amende maximale une entreprise risque-t-elle si elle ne respecte pas le RGPD ?\n**20 millions d'euros** ou **4 % du chiffre d'affaires mondial**, le montant le plus élevé des deux.\n\n## 3.1 · Les choix de production\n\n### Quels sont les deux facteurs de production ?\nLe **travail** (les salariés) et le **capital** (machines, bâtiments, logiciels).\n\n### Qu'est-ce que la combinaison productive ?\nLa façon dont l'entreprise **associe le travail et le capital** pour produire.\n\n### Quelle est la différence entre facteurs substituables et complémentaires ?\n- **Substituables** : l'un peut remplacer l'autre (une caisse automatique remplace un caissier).\n- **Complémentaires** : ils s'utilisent ensemble (un chauffeur et son camion).\n\n### Qu'est-ce qui guide le choix d'une combinaison productive ?\nLe **coût** de chaque facteur, le **progrès technique**, la **qualité** attendue et la **quantité** à produire.\n\n### Qu'est-ce que le progrès technique ?\nL'amélioration des **connaissances et des techniques** qui permet de produire **plus ou mieux** avec les mêmes moyens.\n\n### Qu'est-ce que l'investissement ?\nL'achat de **biens de production durables** (machines, bâtiments, logiciels) pour produire plus ou mieux.\n\n### Qu'est-ce que la productivité du travail ? #calcul\nLe rapport entre la **production** et le **travail** utilisé.\n**Productivité = production ÷ nombre de salariés** (ou d'heures)\n> 1 200 colis préparés par 8 salariés\n> 1 200 ÷ 8 = **150 colis par salarié**\n\n### Comment calcule-t-on la valeur ajoutée ? #calcul\n**Valeur ajoutée = production (chiffre d'affaires) − consommations intermédiaires**\n> CA 500 000 € · achats de matières et services 320 000 €\n> 500 000 − 320 000 = **180 000 €**\n\n### Entre qui la valeur ajoutée est-elle partagée ?\n- Les **salariés** : salaires et cotisations\n- L'**État** : impôts\n- Les **prêteurs** : intérêts\n- Les **actionnaires** : dividendes\n- L'**entreprise** : ce qu'elle garde pour investir (autofinancement)\n\n### Qu'est-ce que le profit ?\nCe qui **reste à l'entreprise** une fois toutes ses charges payées (le bénéfice). Il rémunère les propriétaires et finance l'investissement.\n\n### Qu'est-ce que l'externalisation ?\n**Confier à une autre entreprise** une activité qu'on faisait soi-même : nettoyage, informatique, transport, paie.\n\n### Quelle est la différence entre sous-traitance et délocalisation ?\n- **Sous-traitance** : une autre entreprise fabrique une partie de la production selon les consignes du donneur d'ordres.\n- **Délocalisation** : l'entreprise **déplace** une partie de sa production vers un autre territoire, souvent à l'étranger.\n\n### Pourquoi une entreprise externalise-t-elle, et quels risques prend-elle ?\n- **Raisons** : se concentrer sur son cœur de métier, réduire ses coûts, gagner en souplesse, accéder à des compétences.\n- **Risques** : dépendance envers le prestataire, perte de savoir-faire, qualité moins bien maîtrisée, image dégradée.\n\n## 3.2 · La performance et la RSE\n\n### Quelles sont les 3 dimensions de la performance d'une entreprise ?\n- **Économique** : rentabilité, chiffre d'affaires, parts de marché\n- **Sociale** : conditions de travail, formation, égalité\n- **Environnementale** : émissions, déchets, ressources\n\n### Qu'est-ce que la RSE ?\nLa **responsabilité sociétale des entreprises** : l'entreprise prend en compte, de façon volontaire, les enjeux **sociaux et environnementaux** dans ses activités et ses relations avec ses parties prenantes.\n\n### Qui sont les parties prenantes d'une entreprise ?\nTous ceux qui sont concernés par son activité : **salariés**, **clients**, **fournisseurs**, **actionnaires**, **État**, **riverains**, **associations**.\n\n### Pourquoi une entreprise s'engage-t-elle dans une démarche RSE ?\n- Améliorer sa **notoriété** et son image\n- Répondre aux **attentes** des clients et des salariés\n- Faire face à la **rareté des ressources** (et réduire ses coûts)\n- Respecter les **normes et les lois**\n\n### À quoi correspondent les normes ISO 26000, ISO 14001 et SA 8000 ?\n- **ISO 26000** : lignes directrices sur la RSE\n- **ISO 14001** : management environnemental\n- **SA 8000** : conditions de travail\n\n### Quelle obligation les lois Grenelle ont-elles créée pour les grandes entreprises ?\nPublier chaque année des informations **sociales et environnementales** (le rapport RSE). Depuis 2024, la directive européenne **CSRD** élargit cette obligation.\n\n### Qu'est-ce que le greenwashing ?\nUne communication qui donne une **image écologique trompeuse** de l'entreprise ou de ses produits.\n\n### Citez des indicateurs de performance sociale et environnementale.\n- **Social** : taux d'accidents du travail, index de l'égalité femmes-hommes, heures de formation par salarié\n- **Environnemental** : émissions de CO₂, part des déchets recyclés, consommation d'énergie\n\n### Comment calcule-t-on un taux de rentabilité commerciale ? #calcul\n**Taux de rentabilité = résultat (bénéfice) ÷ chiffre d'affaires × 100**\n> Bénéfice 45 000 € · CA 600 000 €\n> 45 000 ÷ 600 000 × 100 = **7,5 %**\n\n### Comment calcule-t-on un taux de recyclage des déchets ? #calcul\n**Taux de recyclage = déchets recyclés ÷ déchets produits × 100**\n> 18 tonnes recyclées sur 24 tonnes\n> 18 ÷ 24 × 100 = **75 %**\n\n## 3.3 · Le numérique et la production\n\n### Comment le numérique crée-t-il de la valeur pour une entreprise ?\nIl permet de vendre en ligne, de créer de **nouveaux services**, d'**exploiter les données**, de **réduire les coûts** et de **personnaliser** l'offre.\n\n### Quelle est la différence entre données de production et données personnelles ?\n- **Données de production** : stocks, temps machines, capteurs, pannes.\n- **Données personnelles** : celles des clients (achats, navigation, localisation).\n\n### Que fait une entreprise des données personnelles de ses clients ?\nElle les **collecte**, les **exploite** (recommandations, publicité ciblée, fidélisation) et parfois les **revend**. Tout cela est encadré par le **RGPD**.\n\n### Qu'est-ce que la personnalisation de masse ?\nProduire **en grande quantité** des produits **adaptés à chaque client**.\n> Des baskets dont le client choisit les couleurs en ligne.\n\n### Qu'est-ce que la flexibilité de la production ?\nLa capacité à **adapter vite** les quantités et les produits à la demande.\n\n### Qu'est-ce que la production en juste-à-temps ?\nProduire **seulement ce qui est commandé**, au moment voulu, pour limiter les stocks.\n\n### Citez des outils numériques qui transforment l'outil de production.\n**Robots**, **impression 3D**, **objets connectés**, **intelligence artificielle**, logiciels de gestion (ERP).\n\n### Qu'est-ce que le big data ?\nDes **masses de données** très importantes, analysées par des logiciels pour **mieux décider** (prévoir les ventes, éviter les pannes).\n\n### Comment le numérique change-t-il l'organisation de la production dans l'espace et dans le temps ?\n- **Espace** : sites reliés entre eux, travail à distance, production répartie entre plusieurs pays.\n- **Temps** : production et vente 24 h sur 24, réaction rapide à la demande.\n\n### Qu'est-ce qu'une plateforme numérique ?\nUn **intermédiaire en ligne** qui met en relation ceux qui offrent un service et ceux qui le demandent, contre une commission (location de logement, transport, livraison de repas).\n\n## 4.1 · Mesurer l'activité économique\n\n### Qu'est-ce que le PIB ?\nLe **produit intérieur brut** : la richesse créée sur le **territoire national** en **un an**. On le mesure par la **somme des valeurs ajoutées**.\n\n### Qu'est-ce que la croissance économique ?\nL'**augmentation durable de la production** de biens et de services d'un pays. On la mesure par le **taux de croissance du PIB**.\n\n### Comment calcule-t-on le taux de croissance du PIB ? #calcul\n**Taux de croissance = (PIB de l'année − PIB de l'année précédente) ÷ PIB de l'année précédente × 100**\n> 2 800 Md€ puis 2 828 Md€\n> 28 ÷ 2 800 × 100 = **+1 %**\n\n### Quelle est la différence entre PIB en valeur et PIB en volume ? #calcul\n- **En valeur** : aux prix de l'année, il inclut la hausse des prix.\n- **En volume** : corrigé de la hausse des prix, il mesure la vraie hausse de la production.\n> PIB en valeur +3 % · hausse des prix +2 % → croissance en volume d'environ **+1 %**\n\n### Comment calcule-t-on le PIB par habitant ? #calcul\n**PIB par habitant = PIB ÷ population**\n> 2 800 milliards d'euros ÷ 68 millions d'habitants ≈ **41 200 €**\n\n### Quelles sont les limites du PIB ?\n- Il ne compte pas le **travail domestique** ni le **bénévolat**.\n- Il ne dit rien des **inégalités**.\n- Il ignore les **dégâts sur l'environnement** (une catastrophe peut même faire monter le PIB, avec la reconstruction).\n\n### Quelle est la différence entre croissance et développement ?\n- **Croissance** : augmentation de la production, mesurée en chiffres (**quantitative**).\n- **Développement** : amélioration durable du bien-être : santé, éducation, niveau de vie (**qualitative**).\n\n### Qu'est-ce que l'IDH ?\nL'**indice de développement humain**, calculé par l'ONU (PNUD). Entre 0 et 1, il combine **santé** (espérance de vie), **éducation** (durée de scolarisation) et **niveau de vie** (revenu par habitant).\n\n### Qu'est-ce que la balance commerciale ?\nElle compare les **exportations** et les **importations** de biens d'un pays sur un an.\n\n### Comment calcule-t-on le solde de la balance commerciale ? #calcul\n**Solde = exportations − importations**\nSolde positif : excédent. Solde négatif : déficit.\n> Exportations 600 Md€ · importations 700 Md€\n> 600 − 700 = **−100 Md€** (déficit)\n\n### Comment calcule-t-on le taux de couverture ? #calcul\n**Taux de couverture = exportations ÷ importations × 100**\nMoins de 100 % : le pays importe plus qu'il n'exporte.\n> 600 ÷ 700 × 100 = **85,7 %**\n\n### Quels organismes publient les statistiques économiques ?\nL'**INSEE** pour la France (Institut national de la statistique et des études économiques) et **Eurostat** pour l'Union européenne.\n\n### Que mesurent les indicateurs de développement durable de l'INSEE ?\nCe que le PIB ne montre pas : **inégalités**, **emploi et travail décent**, **émissions de gaz à effet de serre**, **consommation responsable**, part des **énergies renouvelables**.\n\n## 4.2 · Le rôle de l'État\n\n### Quelles sont les fonctions régaliennes de l'État ?\n**Défense**, **police**, **justice** et **diplomatie**.\n\n### Quelles sont les 3 fonctions économiques de l'État ?\n- **Allocation** : fournir des biens et services collectifs que le marché ne produit pas assez (routes, école).\n- **Redistribution** : réduire les inégalités de revenus.\n- **Régulation** : agir sur la croissance, l'emploi et les prix.\n\n### Citez trois outils de la redistribution.\nL'**impôt progressif sur le revenu**, les **prestations sociales** (RSA, allocations) et les **services publics gratuits**.\n\n### Quels sont les 4 grands objectifs de la politique économique ?\nLa **croissance**, le **plein emploi**, la **stabilité des prix** et l'**équilibre des échanges extérieurs** (le « carré magique »).\n\n### Quelle est la différence entre politique conjoncturelle et politique structurelle ?\n- **Conjoncturelle** : à **court terme**, pour relancer ou freiner l'activité.\n- **Structurelle** : à **long terme**, pour transformer l'économie (éducation, fiscalité, marché du travail).\n\n### Quelle est la différence entre une politique de relance et une politique de rigueur ?\n- **Relance** : l'État dépense plus ou baisse les impôts pour **soutenir l'activité**.\n- **Rigueur** : l'État réduit ses dépenses pour **réduire le déficit**.\n\n### Qu'est-ce que le budget de l'État ?\nL'ensemble des **recettes** (TVA, impôt sur le revenu, impôt sur les sociétés) et des **dépenses** (éducation, défense, intérêts de la dette) prévues pour l'année. Le Parlement le vote dans la **loi de finances**.\n\n### Quel impôt rapporte le plus à l'État ?\nLa **TVA** (taxe sur la valeur ajoutée), payée par le consommateur sur ses achats.\n\n### Comment calcule-t-on le solde budgétaire ? #calcul\n**Solde budgétaire = recettes − dépenses**\nSolde négatif : déficit.\n> Recettes 330 Md€ · dépenses 470 Md€\n> 330 − 470 = **−140 Md€** (déficit)\n\n### Quelle est la différence entre déficit public et dette publique ?\n- **Déficit** : il manque de l'argent **sur une année** (dépenses supérieures aux recettes).\n- **Dette** : le **total** des sommes empruntées année après année et pas encore remboursées.\n\n### Comment calcule-t-on la dette publique en pourcentage du PIB ? #calcul\n**Dette en % du PIB = dette publique ÷ PIB × 100**\nLes règles européennes fixent une référence de 60 % du PIB pour la dette et de 3 % pour le déficit.\n> 3 300 Md€ ÷ 2 900 Md€ × 100 = **113,8 %**\n\n### Qui est chômeur au sens du BIT ?\nUne personne de **15 ans ou plus**, **sans emploi**, **disponible** pour travailler dans les 15 jours et qui **recherche activement** un emploi.\n\n### Comment calcule-t-on le taux de chômage ? #calcul\n**Taux de chômage = chômeurs ÷ population active × 100**\nLa population active = les personnes en emploi + les chômeurs.\n> 2,3 millions de chômeurs · 31 millions d'actifs\n> 2,3 ÷ 31 × 100 = **7,4 %**\n\n### Quelle est la différence entre politique de l'emploi active et passive ?\n- **Active** : aider le **retour à l'emploi** (formation, aides à l'embauche, accompagnement).\n- **Passive** : atténuer les **conséquences du chômage** (allocations chômage).\n\n### Quel organisme accompagne les demandeurs d'emploi ?\n**France Travail**, qui a remplacé Pôle emploi le 1er janvier 2024.\n\n## 5.1 · Le numérique et les modalités du travail\n\n### Qu'est-ce que le télétravail ?\nUn travail fait **hors des locaux de l'employeur**, de façon **volontaire**, grâce aux outils numériques.\n\n### Qu'est-ce que le travail collaboratif ?\n**Travailler ensemble**, sur place ou à distance, avec des outils partagés : documents en ligne, visioconférence, messagerie d'équipe.\n\n### Quels sont les avantages et les inconvénients du télétravail pour le salarié ?\n- **Avantages** : moins de trajets, plus d'autonomie, meilleure concentration.\n- **Inconvénients** : isolement, frontière floue avec la vie privée, difficulté à décrocher.\n\n### Que veut dire flexibilité du travail ?\nL'adaptation des **horaires**, de l'**organisation de la journée** et des **lieux** de travail et de formation.\n\n### Qu'est-ce que le décloisonnement entre vie privée et vie professionnelle ?\nAvec le numérique, le travail **déborde sur la vie privée** (messages le soir, le week-end). Cela peut créer du **stress** et de la fatigue.\n\n### Qu'est-ce que le droit à la déconnexion ?\nLe droit du salarié de **ne pas être connecté** aux outils professionnels ni contacté **en dehors de son temps de travail**. Il existe depuis 2017 et se négocie dans les entreprises d'au moins 50 salariés.\n\n### Qu'est-ce qu'un espace de coworking ?\nUn **lieu de travail partagé**, loué par des indépendants ou des salariés à distance.\n\n### Pourquoi le statut des travailleurs des plateformes pose-t-il question ?\nIls sont souvent **indépendants** (micro-entrepreneurs), mais la plateforme fixe leurs prix et les contrôle. Le juge peut **requalifier** leur relation en **contrat de travail**.\n\n## 5.2 · Les statuts de la relation de travail\n\n### Quels sont les 3 éléments du contrat de travail ?\n- Une **prestation de travail**\n- Une **rémunération**\n- Un **lien de subordination**\n\n### Qu'est-ce que le lien de subordination ?\nLe pouvoir de l'employeur de **donner des ordres**, de **contrôler** leur exécution et de **sanctionner** le salarié.\n\n### Qu'est-ce qu'un contrat de prestation de services ?\nUn contrat par lequel un **indépendant** réalise une mission pour un client contre un **prix**, **sans lien de subordination**.\n\n### Qu'est-ce qu'un CDI ?\nLe **contrat à durée indéterminée** : le contrat normal, **sans date de fin**.\n\n### Qu'est-ce qu'un CDD ?\nUn **contrat à durée déterminée**, possible seulement dans des **cas précis** (remplacement, hausse temporaire d'activité, emploi saisonnier). Il doit être **écrit**. Il dure en général 18 mois au plus.\n\n### Qu'est-ce qu'un contrat de travail temporaire (intérim) ?\nUne relation **à trois** : l'**agence d'intérim** (l'employeur), le **salarié intérimaire** et l'**entreprise utilisatrice** où il travaille.\n\n### Comment calcule-t-on l'indemnité de fin de CDD ? #calcul\n**Indemnité de fin de contrat = 10 % de la rémunération brute totale**\n> 6 mois à 1 800 € brut : 6 × 1 800 = 10 800 €\n> 10 800 × 10 % = **1 080 €**\n\n### Quelle est la durée légale du travail en France ?\n**35 heures par semaine**. Au-delà, ce sont des **heures supplémentaires**, payées plus cher.\n\n### Comment calcule-t-on la paie des heures supplémentaires ? #calcul\n**+25 %** pour les 8 premières heures (de la 36e à la 43e), **+50 %** au-delà.\n> Taux horaire 12 € · 39 h dans la semaine → 4 heures supplémentaires\n> 4 × 12 × 1,25 = **60 €**\n\n### Comment passe-t-on du salaire brut au salaire net ? #calcul\n**Salaire net = salaire brut − cotisations salariales**\nPour un salarié du privé, les cotisations représentent **environ 22 %** du brut.\n> 2 000 € × 0,78 ≈ **1 560 € net**\n\n### Combien de jours de congés payés un salarié acquiert-il ? #calcul\n**2,5 jours ouvrables par mois travaillé**, soit **30 jours ouvrables (5 semaines)** pour une année complète.\n> 4 mois travaillés : 4 × 2,5 = **10 jours ouvrables**\n\n### Qu'est-ce que la période d'essai ?\nUne période au **début du contrat** pendant laquelle l'employeur et le salarié peuvent **rompre librement**. Pour un employé en CDI : **2 mois** au plus, renouvelable une fois si un accord le prévoit.\n\n### Comment les salariés sont-ils représentés dans l'entreprise ?\nPar le **CSE** (comité social et économique), obligatoire dès **11 salariés**, et par les **délégués syndicaux**.\n\n### Quelle est la différence entre salarié et travailleur indépendant ?\n- **Salarié** : il travaille sous l'**autorité** d'un employeur, reçoit un **salaire**, est protégé par le **Code du travail** (congés payés, chômage).\n- **Indépendant** : il est **autonome**, choisit ses clients, **facture** ses prestations et supporte les **risques**.\n\n### Qu'est-ce que le statut de micro-entrepreneur ?\nUn régime **simplifié** de travailleur indépendant : démarches légères, cotisations calculées sur le **chiffre d'affaires** encaissé.\n\n## 5.3 · Se former tout au long de la vie\n\n### Quelle est la différence entre compétence et qualification ?\n- **Compétence** : un savoir-faire qu'on sait mobiliser en situation.\n- **Qualification** : un ensemble de compétences **reconnu** par un diplôme ou un titre.\n\n### Quelle est la différence entre formation initiale et formation continue ?\n- **Initiale** : avant d'entrer dans la vie active (lycée, études).\n- **Continue** : pendant la vie professionnelle.\n\n### Qu'est-ce que l'employabilité ?\nLa capacité d'une personne à **trouver ou garder un emploi**.\n\n### Pourquoi se former tout au long de la vie ?\n- Pour la **personne** : rester employable, évoluer, se reconvertir.\n- Pour l'**entreprise** : rester compétitive, s'adapter aux nouvelles techniques, garder ses salariés.\n\n### Qu'est-ce que le CPF ?\nLe **compte personnel de formation** : un compte en euros, crédité chaque année (500 € pour un temps plein, dans la limite de 5 000 €). Il finance des formations certifiantes, toute la vie, sur moncompteformation.gouv.fr.\n\n### Qu'est-ce que la VAE ?\nLa **validation des acquis de l'expérience** : obtenir tout ou partie d'un **diplôme** grâce à son expérience (professionnelle, bénévole).\n\n### Qu'est-ce qu'un contrat d'apprentissage ?\nUn **contrat de travail en alternance** entre un CFA et une entreprise, pour préparer un **diplôme**. Il concerne en général les **16-29 ans**.\n\n### Qu'est-ce qu'un contrat de professionnalisation ?\nUn **contrat de travail en alternance** pour obtenir une **qualification professionnelle**. Il concerne les 16-25 ans et les demandeurs d'emploi de 26 ans et plus.\n\n### Qu'est-ce que l'e-learning ?\nLa **formation à distance** par Internet : modules en ligne, vidéos, MOOC.\n\n### Qu'est-ce que le plan de développement des compétences ?\nL'ensemble des **formations décidées par l'employeur** pour ses salariés.\n";
+const PLANNING = { 1: [1], 2: [1, 2], 3: [1], 4: [1, 2, 3], 5: [1, 4], 6: [1, 2, 5], 0: [1, 3, 6] };
+const JOURS = [[1, 'Lundi'], [2, 'Mardi'], [3, 'Mercredi'], [4, 'Jeudi'], [5, 'Vendredi'], [6, 'Samedi'], [0, 'Dimanche']];
+const MOIS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+const deck = parseCartes(MD);
+const actifs = new Set(deck.themes.map((t) => t.nom));
+document.getElementById('aide-titre').textContent = 'Cartes à imprimer · ' + deck.titre;
+
+function notice() {
+  const lignes = [1, 2, 3, 4, 5, 6].map((b) => '<tr><th>C' + b + '</th>' + JOURS.map(([d]) => PLANNING[d].includes(b) ? '<td class="oui">' + b + '</td>' : '<td></td>').join('') + '</tr>').join('');
+  return '<section class="feuille"><div class="notice">' +
+    '<header><div><h1>Ma boîte de Leitner</h1><p>' + echapper(deck.titre.replace(/^Boîte de Leitner\s*[—-]\s*/, '')) + ' · ' + deck.cartes.length + ' cartes</p></div></header>' +
+    '<div><h2>La boîte</h2><p>Une boîte à <strong>6 compartiments</strong>. Plus le numéro est grand, moins les cartes reviennent souvent. Les nouvelles cartes entrent toujours dans le <strong>compartiment 1</strong>.</p></div>' +
+    '<div><h2>À chaque séance</h2><ol>' +
+      '<li>Je lis la question <strong>sans regarder le verso</strong>.</li>' +
+      '<li>Je dis la réponse dans ma tête. Pour un calcul, je l\'écris au brouillon.</li>' +
+      '<li>Je retourne la carte et je vérifie.</li>' +
+      '<li><strong>Bonne réponse</strong> : la carte <strong>monte</strong> dans le compartiment suivant.</li>' +
+      '<li><strong>Mauvaise réponse</strong> : la carte <strong>retourne au compartiment 1</strong>. Elle revient dès demain.</li>' +
+      '<li>Une carte réussie dans le compartiment 6 sort de la boîte : elle est <strong>maîtrisée</strong>.</li>' +
+    '</ol></div>' +
+    '<div><h2>Planning de la semaine : quels compartiments ouvrir ?</h2><table class="semaine"><thead><tr><th></th>' +
+      JOURS.map(([, n]) => '<th>' + n + '</th>').join('') + '</tr></thead><tbody>' + lignes + '</tbody></table></div>' +
+    '<div><h2>Rythme de chaque compartiment</h2><table class="rythme"><tbody>' +
+      '<tr><td>Compartiment 1</td><td>tous les jours : cartes nouvelles ou ratées</td></tr>' +
+      '<tr><td>Compartiment 2</td><td>3 fois par semaine (mardi, jeudi, samedi)</td></tr>' +
+      '<tr><td>Compartiment 3</td><td>2 fois par semaine (jeudi, dimanche)</td></tr>' +
+      '<tr><td>Compartiments 4, 5, 6</td><td>1 fois par semaine (vendredi, samedi, dimanche)</td></tr>' +
+    '</tbody></table></div>' +
+    '<div><h2>Mes conseils pour écrire une nouvelle carte</h2><ol>' +
+      '<li>Une carte = <strong>une seule notion</strong>.</li>' +
+      '<li>Une question claire, comme si j\'interrogeais quelqu\'un.</li>' +
+      '<li>Une réponse courte : un mot, une phrase, une formule, un chiffre.</li>' +
+      '<li>J\'écris mes cartes à la fin de la séance, quand c\'est encore frais.</li>' +
+    '</ol></div>' +
+  '</div></section>';
+}
+
+function annee() {
+  const now = new Date();
+  const debut = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+  let h = '<section class="feuille"><div class="notice"><header><div><h1>Mon planning annuel ' + debut + '-' + (debut + 1) + '</h1><p>Je coche la case du jour après chaque séance.</p></div></header>' +
+    '<table class="annee"><thead><tr><th class="mois"></th>';
+  for (let d = 1; d <= 31; d++) h += '<th>' + d + '</th>';
+  h += '</tr></thead><tbody>';
+  for (let k = 0; k < 12; k++) {
+    const m = (8 + k) % 12, a = m >= 8 ? debut : debut + 1;
+    const nbj = new Date(a, m + 1, 0).getDate();
+    h += '<tr><th class="mois">' + MOIS[m] + '</th>';
+    for (let d = 1; d <= 31; d++) {
+      if (d > nbj) { h += '<td class="x"></td>'; continue; }
+      const j = new Date(a, m, d).getDay();
+      h += '<td class="' + (j === 0 || j === 6 ? 'we' : '') + '"></td>';
+    }
+    h += '</tr>';
+  }
+  h += '</tbody></table><p style="font-size:9pt;color:var(--doux)">Les cases teintées sont les samedis et dimanches. Le jeudi et le dimanche sont les séances les plus longues (3 compartiments).</p></div></section>';
+  return h;
+}
+
+function recto(c) {
+  if (!c) return '<div class="carte vide"></div>';
+  return '<div class="carte recto' + (c.calcul ? ' calcul' : '') + '"><span class="bande"></span>' +
+    '<div class="haut"><span>' + echapper(c.theme) + '</span>' + (c.calcul ? '<span class="tag">Calcul</span>' : '') + '</div>' +
+    '<div class="contenu">' + enLigne(c.q) + '</div></div>';
+}
+function verso(c) {
+  if (!c) return '<div class="carte vide"></div>';
+  return '<div class="carte verso"><div class="haut"><span class="rappel">' + enLigne(c.q) + '</span></div>' +
+    '<div class="contenu">' + mdVersHtml(c.reponse) +
+    (c.exemple.length ? '<div class="ex">' + mdVersHtml(c.exemple) + '</div>' : '') + '</div></div>';
+}
+
+function ajuster() {
+  document.querySelectorAll('.carte .contenu').forEach((el) => {
+    let taille = parseFloat(getComputedStyle(el).fontSize);
+    while (el.scrollHeight > el.clientHeight + 1 && taille > 7) { taille -= 0.4; el.style.fontSize = taille + 'px'; }
+  });
+}
+
+function rendre() {
+  const cartes = deck.cartes.filter((c) => actifs.has(c.theme));
+  document.getElementById('compte').textContent = '· ' + cartes.length + ' cartes, ' + Math.ceil(cartes.length / 8) * 2 + ' pages';
+  let h = document.getElementById('avec-notice').checked ? notice() + annee() : '';
+  for (let p = 0; p < cartes.length; p += 8) {
+    const lot = cartes.slice(p, p + 8);
+    let r = '', v = '';
+    for (let row = 0; row < 4; row++) {
+      r += recto(lot[row * 2]) + recto(lot[row * 2 + 1]);
+      // Au verso, gauche et droite sont inversées pour une impression recto verso bord long.
+      v += verso(lot[row * 2 + 1]) + verso(lot[row * 2]);
+    }
+    h += '<section class="feuille"><div class="grille">' + r + '</div></section>';
+    h += '<section class="feuille"><div class="grille">' + v + '</div></section>';
+  }
+  document.getElementById('feuilles').innerHTML = h;
+  ajuster();
+}
+
+document.getElementById('choix').innerHTML = deck.themes.map((t, i) =>
+  '<label><input type="checkbox" id="t' + i + '" checked> ' + echapper(t.nom) + ' (' + t.cartes.length + ')</label>').join('');
+deck.themes.forEach((t, i) => {
+  document.getElementById('t' + i).onchange = (ev) => { ev.target.checked ? actifs.add(t.nom) : actifs.delete(t.nom); rendre(); };
+});
+document.getElementById('avec-notice').onchange = rendre;
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(rendre); else rendre();
+</script>
+</body>
+</html>

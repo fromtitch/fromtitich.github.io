@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boîte de Leitner mercatique</title>
+<style>
+/* Mise en page : une colonne étroite façon carnet ; la carte est l'objet central, le reste reste discret. Charte NOMADE. */
+:root {
+  --fond: #FFFFFF;
+  --surface: #F8F3FA;
+  --carte: #FFFFFF;
+  --encre: #1A1A1A;
+  --doux: #5E5366;
+  --trait: #E7DCEC;
+  --prune: #692073;
+  --magenta: #B141BF;
+  --violet: #6E34BF;
+  --lavande: #DFB3F2;
+  --cyan: #0DB3D9;
+  --cyan-encre: #05677F;
+  --bouton: #692073;
+  --bouton-texte: #FFFFFF;
+  --ok: #1E7A4C;
+  --ok-fond: #E5F4EC;
+  --ko: #B3261E;
+  --ko-fond: #FBE9E7;
+  --exemple: #EAF8FC;
+  --police: Verdana, "DejaVu Sans", Geneva, Tahoma, sans-serif;
+  --rayon: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fond: #16111A; --surface: #211A26; --carte: #2A2130; --encre: #F3EDF6; --doux: #BBAFC3; --trait: #3B2F42;
+    --prune: #E4A9EE; --magenta: #D47FDF; --violet: #AE90EC; --lavande: #553663; --cyan: #3CC8E6; --cyan-encre: #74DAF0;
+    --bouton: #E4A9EE; --bouton-texte: #1A1A1A; --ok: #62C995; --ok-fond: #183A2A; --ko: #F38B83; --ko-fond: #431F1C; --exemple: #13303A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fond: #16111A; --surface: #211A26; --carte: #2A2130; --encre: #F3EDF6; --doux: #BBAFC3; --trait: #3B2F42;
+  --prune: #E4A9EE; --magenta: #D47FDF; --violet: #AE90EC; --lavande: #553663; --cyan: #3CC8E6; --cyan-encre: #74DAF0;
+  --bouton: #E4A9EE; --bouton-texte: #1A1A1A; --ok: #62C995; --ok-fond: #183A2A; --ko: #F38B83; --ko-fond: #431F1C; --exemple: #13303A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--fond); color: var(--encre); font-family: var(--police); font-size: 15px; line-height: 1.55; margin: 0; }
+.page { max-width: 760px; margin: 0 auto; padding: 18px 16px 48px; display: flex; flex-direction: column; gap: 18px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.25; }
+h1 { font-size: 1.15rem; color: var(--prune); }
+h2 { font-size: 1.05rem; color: var(--prune); }
+p { margin: 0; }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; border-radius: 6px; }
+
+/* En-tête */
+.entete { display: flex; align-items: center; gap: 12px; }
+.entete .sous { color: var(--doux); font-size: .82rem; }
+
+/* Onglets */
+.onglets { display: flex; gap: 4px; overflow-x: auto; border-bottom: 2px solid var(--trait); scrollbar-width: none; }
+.onglets button { background: none; border: 0; padding: 9px 12px; border-bottom: 3px solid transparent; margin-bottom: -2px; color: var(--doux); white-space: nowrap; font-size: .92rem; }
+.onglets button[aria-selected="true"] { color: var(--prune); border-bottom-color: var(--magenta); font-weight: bold; }
+
+.vue { display: flex; flex-direction: column; gap: 16px; }
+.bloc { background: var(--surface); border-radius: var(--rayon); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.discret { color: var(--doux); font-size: .88rem; }
+
+/* Puces de compartiments */
+.puces { display: flex; flex-wrap: wrap; gap: 6px; }
+.puce { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 2px 10px; font-size: .8rem; background: var(--lavande); color: var(--encre); font-variant-numeric: tabular-nums; }
+.puce.calcul { background: var(--exemple); color: var(--cyan-encre); border: 1px solid var(--cyan); }
+
+.gros { font-size: 2.4rem; font-weight: bold; color: var(--prune); line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* Boutons */
+.btn { border: 0; border-radius: 8px; padding: 12px 18px; background: var(--bouton); color: var(--bouton-texte); font-weight: bold; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.secondaire { background: transparent; color: var(--prune); border: 2px solid var(--prune); padding: 10px 16px; }
+.btn.lien { background: none; color: var(--doux); text-decoration: underline; padding: 4px; font-weight: normal; }
+.btn.ok { background: var(--ok); color: var(--fond); }
+.btn.ko { background: var(--ko); color: var(--fond); }
+.rangee { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.rangee.deux > * { flex: 1 1 200px; }
+
+/* Carte */
+.scene { perspective: 1400px; }
+.flash { display: grid; transition: transform .45s ease; transform-style: preserve-3d; }
+.flash.retournee { transform: rotateY(180deg); }
+.face { grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: var(--carte); border: 2px solid var(--lavande); border-radius: 14px; padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 12px; min-height: 260px; min-width: 0; }
+.face.verso { transform: rotateY(180deg); border-color: var(--magenta); }
+.face .haut { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: .76rem; color: var(--doux); letter-spacing: .02em; }
+.face .question { font-size: 1.3rem; font-weight: bold; color: var(--encre); margin: auto 0; text-wrap: balance; }
+.face .rappel { font-size: .85rem; color: var(--doux); font-weight: bold; }
+.reponse { display: flex; flex-direction: column; gap: 6px; }
+.reponse ul { margin: 0; padding-left: 1.2em; }
+.reponse strong { color: var(--prune); }
+.exemple { background: var(--exemple); border-left: 4px solid var(--cyan); border-radius: 6px; padding: 10px 12px; font-size: .92rem; display: flex; flex-direction: column; gap: 4px; overflow-x: auto; }
+.exemple strong { color: var(--cyan-encre); }
+.exemple .titre-ex { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--cyan-encre); }
+code { font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: .9em; }
+
+.progression { height: 6px; background: var(--trait); border-radius: 3px; overflow: hidden; }
+.progression > div { height: 100%; background: var(--magenta); transition: width .3s; }
+.brouillon { display: flex; flex-direction: column; gap: 4px; }
+.brouillon input { border: 2px solid var(--trait); border-radius: 8px; padding: 10px; background: var(--carte); width: 100%; }
+
+/* Boîte */
+.boite { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 560px) { .boite { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.compartiment { background: var(--carte); border: 2px solid var(--trait); border-radius: 8px; padding: 10px 6px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; min-width: 0; }
+.compartiment.ouvert { border-color: var(--magenta); }
+.compartiment .num { font-size: .75rem; color: var(--doux); }
+.compartiment .nb { font-size: 1.6rem; font-weight: bold; color: var(--prune); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.compartiment .ry { font-size: .68rem; color: var(--doux); line-height: 1.3; }
+.pile { width: 70%; height: 46px; display: flex; flex-direction: column-reverse; gap: 2px; }
+.pile span { display: block; height: 4px; border-radius: 2px; background: var(--lavande); }
+.compartiment.ouvert .pile span { background: var(--magenta); }
+
+table { border-collapse: collapse; width: 100%; font-size: .85rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--trait); }
+th { color: var(--doux); font-weight: normal; font-size: .78rem; }
+.defile { overflow-x: auto; }
+.semaine td, .semaine th { text-align: center; }
+.semaine .auj { background: var(--lavande); }
+.point { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--magenta); }
+
+.annee { display: grid; grid-template-columns: 34px repeat(31, 14px); gap: 2px; font-size: .62rem; color: var(--doux); width: max-content; }
+.annee .j { width: 14px; height: 14px; border-radius: 3px; background: var(--trait); }
+.annee .j.vide { background: none; }
+.annee .j.fait { background: var(--magenta); }
+.annee .j.auj { outline: 2px solid var(--cyan); outline-offset: 0; }
+.annee .m { align-self: center; }
+
+.theme-ligne { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--trait); }
+.theme-ligne:last-child { border-bottom: 0; }
+.theme-ligne input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--magenta); flex: none; }
+.theme-ligne label { flex: 1; min-width: 0; cursor: pointer; }
+.barre { height: 5px; background: var(--trait); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.barre > div { height: 100%; background: var(--violet); }
+.alerte { background: var(--ko-fond); color: var(--encre); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.bravo { background: var(--ok-fond); border-radius: var(--rayon); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+details summary { cursor: pointer; color: var(--prune); font-weight: bold; }
+details ol { margin: 8px 0 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+@media (prefers-reduced-motion: reduce) { .flash, .progression > div { transition: none; } }
+</style>
+
+<meta name="theme-color" content="#692073">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icone-192.png">
+<link rel="apple-touch-icon" href="../icone-192.png">
+</head>
+<body>
+<div class="page">
+  <a href="../index.html" style="color:var(--doux);font-size:.85rem;text-decoration:none">← Toutes les boîtes</a>
+  <header class="entete">
+    <div>
+      <h1 id="titre-deck">Boîte de Leitner</h1>
+      <div class="sous" id="sous-titre"></div>
+    </div>
+  </header>
+
+  <nav class="onglets" role="tablist" id="onglets">
+    <button role="tab" data-vue="jour" aria-selected="true">Aujourd'hui</button>
+    <button role="tab" data-vue="boite" aria-selected="false">Ma boîte</button>
+    <button role="tab" data-vue="planning" aria-selected="false">Planning</button>
+    <button role="tab" data-vue="entrainement" aria-selected="false">S'entraîner</button>
+    <button role="tab" data-vue="themes" aria-selected="false">Thèmes</button>
+  </nav>
+
+  <main id="contenu" class="vue"></main>
+
+</div>
+
+<script>
+// Lecture du fichier cartes.md — partagé par l'application et la page d'impression.
+// Format : "## Thème", "### Question #calcul", lignes de réponse, lignes "> " = exemple.
+
+function hashTexte(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+
+function parseCartes(md) {
+  const lignes = md.replace(/\r/g, '').split('\n');
+  let i = 0;
+  let titre = 'Boîte de Leitner';
+  if (lignes[0] && lignes[0].trim() === '---') {
+    for (i = 1; i < lignes.length && lignes[i].trim() !== '---'; i++) {
+      const m = lignes[i].match(/^titre:\s*(.+)$/);
+      if (m) titre = m[1].trim().replace(/^["']|["']$/g, '');
+    }
+    i++;
+  }
+  const themes = [];
+  const vus = {};
+  let theme = null;
+  let carte = null;
+  let commentaire = false;
+  for (; i < lignes.length; i++) {
+    let L = lignes[i].replace(/%%.*?%%/g, '');
+    if (L.includes('%%')) { commentaire = !commentaire; continue; }
+    if (commentaire) continue;
+    if (/^## /.test(L)) {
+      theme = { nom: L.slice(3).trim(), cartes: [] };
+      themes.push(theme);
+      carte = null;
+      continue;
+    }
+    if (/^### /.test(L)) {
+      if (!theme) { theme = { nom: 'Sans thème', cartes: [] }; themes.push(theme); }
+      let q = L.slice(4).trim();
+      const calcul = /(^|\s)#calcul(?=\s|$)/.test(q);
+      q = q.replace(/(^|\s)#calcul(?=\s|$)/g, '').trim();
+      let id = hashTexte(q);
+      if (vus[id]) id += '-' + (++vus[id]); else vus[id] = 1;
+      carte = { id, q, calcul, reponse: [], exemple: [], theme: theme.nom };
+      theme.cartes.push(carte);
+      continue;
+    }
+    if (/^#{1,6} /.test(L)) { carte = null; continue; }
+    if (!carte) continue;
+    if (/^>/.test(L)) { carte.exemple.push(L.replace(/^>\s?/, '')); continue; }
+    carte.reponse.push(L);
+  }
+  const nettoyer = (t) => {
+    while (t.length && !t[0].trim()) t.shift();
+    while (t.length && !t[t.length - 1].trim()) t.pop();
+    return t;
+  };
+  const resultat = themes.filter((t) => t.cartes.length);
+  resultat.forEach((t) => t.cartes.forEach((c) => { nettoyer(c.reponse); nettoyer(c.exemple); }));
+  return { titre, themes: resultat, cartes: resultat.flatMap((t) => t.cartes) };
+}
+
+function echapper(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function enLigne(s) {
+  return echapper(s)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/(^|[\s(])\*(?!\s)(.+?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>')
+    // Typographie française : espace insécable avant ? ! : ; » et après «
+    .replace(/ ([?!:;»])/g, ' $1')
+    .replace(/« /g, '« ');
+}
+
+// Petit rendu Markdown : paragraphes, listes à puces, gras, italique, code.
+function mdVersHtml(lignes) {
+  let html = '';
+  let liste = false;
+  for (const brute of lignes) {
+    const L = brute.trim();
+    if (/^[-*] /.test(L)) {
+      if (!liste) { html += '<ul>'; liste = true; }
+      html += '<li>' + enLigne(L.slice(2)) + '</li>';
+      continue;
+    }
+    if (liste) { html += '</ul>'; liste = false; }
+    if (L) html += '<p>' + enLigne(L) + '</p>';
+  }
+  if (liste) html += '</ul>';
+  return html;
+}
+
+
+const MD_ORIGINE = "---\ntitre: Boîte de Leitner — La démarche mercatique\ndiplomes: [MCV]\nniveau: Première et terminale MCV\ndate_created: 2026-10-13\ndate_updated: 2026-10-13\n---\n\n# Boîte de Leitner — La démarche mercatique\n\n> [!info] Comment modifier les cartes\n> - `## Titre` : un **thème** (une étape de la démarche). Les thèmes entrent dans la boîte dans cet ordre.\n> - `### Question` : le **recto** d'une carte. Ajouter `#calcul` à la fin pour une carte de calcul.\n> - Les lignes qui suivent : le **verso** (la réponse). On peut écrire en **gras** et faire des listes avec `- `.\n> - Une ligne qui commence par `>` : l'**exemple** chiffré, affiché dans un encadré sous la réponse.\n> - Après une modification, lancer `python3 generer.py` dans ce dossier (voir [[Cours/MCV/Boîte de Leitner - Démarche mercatique/LISEZMOI|LISEZMOI]]).\n>\n> Une carte = une seule notion. Garder les réponses courtes.\n\n## 1 · La démarche mercatique\n\n### Qu'est-ce que la démarche mercatique ?\nL'enchaînement d'étapes qui part de l'**analyse du marché** pour construire une **offre adaptée** à une clientèle choisie, puis en **mesure les résultats**.\n\n### Quelles sont les 6 étapes de la démarche mercatique, dans l'ordre ?\n- 1 · Diagnostic (analyse du marché)\n- 2 · Segmentation\n- 3 · Ciblage\n- 4 · Positionnement\n- 5 · Plan de marchéage (4P)\n- 6 · Mise en œuvre et contrôle\n\n### Que veut dire « mercatique » ?\nC'est le mot français officiel pour **marketing**.\n\n### Que signifie le trio STP ?\n**S**egmentation, **T**argeting (ciblage), **P**ositioning (positionnement) : segmenter → cibler → positionner. Ce sont les étapes 2, 3 et 4.\n\n### Qu'est-ce que le plan de marchéage ?\nL'ensemble des décisions sur les **4P** : produit, prix, distribution (place), communication (promotion). On dit aussi **mix marketing**.\n\n### Pourquoi dit-on que la démarche mercatique est cyclique ?\nLes résultats du **contrôle** (étape 6) servent de point de départ au **diagnostic** suivant.\n\n### Dans quelle activité du Bac Pro MCV la démarche mercatique est-elle un savoir associé ?\nDans l'activité **A3 · Fidélisation**, évaluée en **E33** (CCF). Elle sert aussi dans les études de cas de l'**E2**.\n\n## 2 · Diagnostic : le marché et le SWOT\n\n### Qu'est-ce qu'un marché ?\nLe lieu de rencontre entre l'**offre** (les vendeurs) et la **demande** (les acheteurs) pour un produit ou un service.\n\n### Quelle est la différence entre concurrence directe et concurrence indirecte ?\n- **Directe** : la même offre pour la même clientèle.\n- **Indirecte** : une offre ou un canal différent qui répond au même besoin.\n> Pour un magasin de sport : un autre magasin de sport est un concurrent direct ; un site de vêtements de seconde main est un concurrent indirect.\n\n### Que signifie SWOT ? Et FFOM ?\n**S**trengths, **W**eaknesses, **O**pportunities, **T**hreats. En français : **F**orces, **F**aiblesses, **O**pportunités, **M**enaces.\n\n### Dans un SWOT, quels éléments sont internes ?\nLes **forces** et les **faiblesses** : ce que l'entreprise **maîtrise** et sur quoi elle peut agir.\n\n### Dans un SWOT, quels éléments sont externes ?\nLes **opportunités** et les **menaces** : ce que l'**environnement** impose (marché, concurrence, réglementation, tendances).\n\n### Faiblesse ou menace : « Un concurrent ouvre un magasin à 500 m. »\nUne **menace** : elle est externe, l'entreprise ne la contrôle pas.\n\n### Faiblesse ou menace : « Le magasin n'a pas de site de vente en ligne. »\nUne **faiblesse** : elle est interne, l'entreprise peut agir dessus.\n\n### À quoi sert un SWOT une fois rempli ?\nÀ formuler des **préconisations** : s'appuyer sur les **forces** pour saisir les **opportunités**, et réduire les **faiblesses** face aux **menaces**.\n\n### Que signifie PESTEL ?\n**P**olitique, **É**conomique, **S**ocioculturel, **T**echnologique, **E**nvironnemental (écologique), **L**égal. Cette analyse du macro-environnement alimente les opportunités et les menaces du SWOT.\n\n### Comment calcule-t-on une part de marché en valeur ? #calcul\n**Part de marché = CA de l'entreprise ÷ CA total du marché × 100**\nEn volume, on fait le même calcul avec les quantités vendues.\n> CA du magasin : 450 000 € · marché local : 3 000 000 €\n> 450 000 ÷ 3 000 000 × 100 = **15 %**\n\n### Comment calcule-t-on un taux d'évolution ? #calcul\n**Taux d'évolution = (valeur d'arrivée − valeur de départ) ÷ valeur de départ × 100**\n> CA 2025 : 200 000 € · CA 2026 : 230 000 €\n> (230 000 − 200 000) ÷ 200 000 × 100 = **+15 %**\n\n### Le CA de 80 000 € doit progresser de 5 %. Comment calculer l'objectif ? #calcul\n**Objectif = valeur de départ × (1 + taux)**\n> 80 000 × 1,05 = **84 000 €**\n> Pour une baisse de 5 % : 80 000 × 0,95 = 76 000 €\n\n## 3 · Diagnostic : la zone de chalandise\n\n### Qu'est-ce que la zone de chalandise ?\nLa zone géographique d'où viennent les clients, **réels et potentiels**, d'un point de vente.\n\n### Quelles sont les trois zones d'une zone de chalandise ?\n- **Primaire** : moins de 10 min, la majorité des clients\n- **Secondaire** : 10 à 20 min, des clients moins fréquents\n- **Tertiaire** : plus de 20 min, des clients occasionnels\nLes seuils changent selon le type de commerce.\n\n### Qu'est-ce qu'une isochrone ?\nUne courbe qui relie les points situés au **même temps de trajet** du magasin. On la préfère au cercle en kilomètres (isodistance), car elle tient compte des routes et des bouchons.\n\n### Qu'est-ce que le taux d'emprise ?\nLa part du **marché potentiel** qu'un point de vente capte dans une zone. Il **diminue** quand on s'éloigne du magasin.\n\n### Qu'est-ce que l'évasion commerciale ?\nLes dépenses des habitants de la zone faites **en dehors** de celle-ci : dans une autre ville ou sur Internet.\n\n### Pourquoi tous les habitants d'une zone ne sont-ils pas des clients ?\nIls peuvent acheter chez un concurrent, ailleurs ou en ligne. C'est pour cela qu'on applique un **taux d'emprise** au marché potentiel.\n\n### Comment calcule-t-on le marché potentiel d'une zone ? #calcul\n**Marché potentiel = population × dépense moyenne par habitant** (pour la famille de produits)\n> Zone primaire : 64 000 habitants · 420 € par habitant\n> 64 000 × 420 = **26 880 000 €**\n\n### Comment calcule-t-on le marché potentiel avec l'IDC ? #calcul\n**Marché potentiel = population × dépense moyenne nationale × IDC ÷ 100**\nL'IDC (indice de disparité de la consommation) compare la dépense locale à la moyenne nationale (base 100).\n> 10 000 habitants · 400 € par an · IDC 110\n> 10 000 × 400 × 110 ÷ 100 = **4 400 000 €**\n\n### Comment calcule-t-on le CA prévisionnel d'une zone ? #calcul\n**CA prévisionnel = marché potentiel × taux d'emprise**\n> 26 880 000 € × 12 % = **3 225 600 €**\n\n### Comment calcule-t-on un taux d'emprise ? #calcul\n**Taux d'emprise = CA réalisé dans la zone ÷ marché potentiel de la zone × 100**\n> Zone secondaire : CA 705 600 € · marché potentiel 8 820 000 €\n> 705 600 ÷ 8 820 000 × 100 = **8 %**\n\n### Comment calcule-t-on un taux d'évasion commerciale ? #calcul\n**Taux d'évasion = dépenses faites hors de la zone ÷ dépenses totales des habitants × 100**\n> 1 200 000 € dépensés ailleurs sur 8 000 000 €\n> 1 200 000 ÷ 8 000 000 × 100 = **15 %**\n\n### Une zone tertiaire a deux fois plus d'habitants que la zone secondaire mais rapporte moins. Pourquoi ?\nPlus le client habite loin, **moins il vient** : le taux d'emprise y est beaucoup plus faible.\n> Secondaire : 21 000 hab. × 420 € × 8 % = 705 600 €\n> Tertiaire : 45 000 hab. × 420 € × 3 % = 567 000 €\n\n## 4 · Segmentation : RFM et données clients\n\n### Que veut dire segmenter ?\nDécouper l'ensemble des clients en **groupes homogènes** (les segments) : les clients d'un même segment se ressemblent, les segments sont différents entre eux.\n\n### Quelles sont les 4 familles de critères de segmentation ?\n- **Sociodémographiques** : âge, revenu, profession\n- **Géographiques** : ville, quartier, zone de chalandise\n- **Psychographiques** : style de vie, valeurs, centres d'intérêt\n- **Comportementaux** : fréquence d'achat, montant, fidélité\n\n### Le style de vie d'un client : quel type de critère de segmentation ?\nUn critère **psychographique**.\n\n### Qu'est-ce que le SIC ?\nLe **système d'information commercial** : les outils, procédures et bases de données qui servent à collecter, stocker, traiter et diffuser les informations commerciales (clients, produits, prospects).\n\n### Que signifie RFM ?\n**R**écence, **F**réquence, **M**ontant. C'est une segmentation **comportementale**, faite à partir de l'historique d'achat enregistré dans le SIC.\n\n### Que mesure la récence ?\nLe **nombre de jours depuis le dernier achat**. Plus l'achat est récent, plus le client est réceptif.\n\n### Que mesurent la fréquence et le montant ?\n- **Fréquence** : le nombre d'achats sur la période (l'habitude, la fidélité).\n- **Montant** : le total dépensé sur la période (la valeur du client).\n\n### Comment calcule-t-on la récence d'un client ? #calcul\n**Récence = date de l'analyse − date du dernier achat** (en jours)\nDans le tableur, on soustrait les deux dates et on affiche la cellule au format nombre.\n> Analyse le 30/06 · dernier achat le 15/05\n> 16 jours en mai + 30 jours en juin = **46 jours**\n\n### Comment attribuer un score de récence avec la fonction SI ? #calcul\n**=SI(B2<=30;3;SI(B2<=90;2;1))**\n3 points jusqu'à 30 jours, 2 points jusqu'à 90 jours, sinon 1 point.\nAttention : pour la récence, **moins de jours = meilleur score**.\n> Client à 46 jours : 46 > 30, mais 46 ≤ 90 → score **2**\n\n### Combien de fonctions SI faut-il pour obtenir 3 réponses possibles ? #calcul\n**Nombre de SI = nombre de réponses − 1**\n> 3 scores possibles (1, 2 ou 3) → **2 SI** imbriqués\n\n### À quoi servent NB.SI et SOMME.SI ? #calcul\n- **NB.SI** compte les cellules qui remplissent une condition.\n- **SOMME.SI** additionne les montants des lignes qui remplissent une condition.\n> =NB.SI(E2:E21;\"Champions\") → nombre de clients « Champions »\n> =SOMME.SI(E2:E21;\"Champions\";D2:D21) → leur CA total\n\n### Comment calcule-t-on le poids d'un segment ? #calcul\n**Part des clients = clients du segment ÷ total des clients × 100**\n**Part du CA = CA du segment ÷ CA total × 100**\n> 5 clients sur 20 → 25 % des clients\n> 9 300 € sur 20 000 € → **46,5 % du CA**\n\n### Qui sont les clients « Champions » en RFM et que leur propose-t-on ?\nLes clients notés **R3 F3 M3**. On les récompense (avant-premières, cadeau) et on en fait des ambassadeurs (parrainage, avis).\n\n### Qui sont les clients « À risque » en RFM et que leur propose-t-on ?\nDes clients **R1** qui achetaient souvent (**F2 ou F3**). On les réactive en urgence : offre personnalisée, appel ou message « vous nous manquez ».\n\n### Qui sont les « Nouveaux » clients en RFM et que leur propose-t-on ?\nLes clients **R3 F1** : ils viennent d'acheter pour la première fois. On transforme l'essai avec une offre sur le 2e achat ou un message de bienvenue.\n\n### Pourquoi l'ordre des règles de segmentation compte-t-il ?\nUn client peut remplir deux règles. La **première règle testée l'emporte**.\n> Un client R1 F2 M3 est « À risque » et « Gros panier » : l'urgence (il part) passe avant la valeur.\n\n### Que faut-il vérifier avant d'envoyer un e-mail à un segment ?\nLe **consentement (opt-in)** du client pour ce canal, exigé par le **RGPD**. Un consentement non renseigné vaut refus.\n\n### Quelles sont les limites de la méthode RFM ?\n- Elle ne regarde que le **passé** (pas les besoins ni la satisfaction).\n- Les **seuils** dépendent du secteur.\n- Elle ignore les **produits achetés** et le **canal**.\n\n## 5 · Ciblage et positionnement\n\n### Que veut dire cibler ?\n**Choisir** le ou les segments sur lesquels l'entreprise concentre ses efforts. Le segment choisi s'appelle la **cible**.\n\n### Quelles sont les 3 qualités d'un bon segment cible ?\n- **Assez grand** ou assez rentable\n- **Accessible** : on peut joindre ces clients\n- **Compatible** avec l'entreprise : produits, vendeurs, budget\n\n### Qu'est-ce qu'un ciblage indifférencié ?\n**Une seule offre pour tout le monde.** C'est simple et peu coûteux, mais cela ne répond pas aux besoins particuliers.\n\n### Qu'est-ce qu'un ciblage différencié ?\n**Une offre adaptée à chaque segment** (une gamme running, une gamme mode, une gamme enfant). Cela répond à chaque besoin, mais coûte plus cher.\n\n### Qu'est-ce qu'un ciblage concentré ?\n**Une seule cible, très bien servie** (un magasin 100 % trail). L'entreprise devient experte, mais c'est risqué si la cible diminue.\n\n### Qu'est-ce que le cœur de cible ?\nLes clients **les plus importants** de la cible, ceux qu'on veut toucher en priorité.\n\n### Qu'est-ce qu'un prescripteur ?\nUne personne qui **influence l'achat** sans forcément acheter : un coach sportif, un influenceur, un parent.\n\n### Que veut dire positionner une offre ?\nDécider de la **place** qu'on veut occuper **dans l'esprit des clients**, **par rapport aux concurrents**. C'est la réponse à : « Pourquoi venir chez nous plutôt qu'ailleurs ? »\n\n### À quoi sert une carte de positionnement ?\nElle place les concurrents selon **deux critères** importants pour les clients (par exemple prix et conseil). On voit qui se ressemble et s'il reste une **place libre**.\n\n### Quelles sont les 4 qualités d'un bon positionnement ?\n**Simple** (une phrase), **attractif** (il répond aux attentes), **crédible** (l'entreprise peut le tenir), **différent** des concurrents.\n\n### Quelle est la différence entre positionnement voulu et positionnement perçu ?\n- **Voulu** : l'image que l'entreprise souhaite donner.\n- **Perçu** : l'image que les clients ont **réellement** (avis, réputation).\nSi l'écart est grand, il faut corriger les 4P.\n\n## 6 · Plan de marchéage : le produit\n\n### Que regroupe le P « Produit » ?\nLa gamme, les caractéristiques, la qualité, la marque, les **services associés** et le cycle de vie.\n\n### Quelle est la différence entre la largeur et la profondeur d'une gamme ?\n- **Largeur** : le nombre de lignes (familles) de produits.\n- **Profondeur** : le nombre de références dans une ligne.\n\n### Quelles sont les 4 phases du cycle de vie d'un produit ?\n**Lancement**, **croissance**, **maturité**, **déclin**.\n\n### Donnez trois exemples de services associés à un produit.\nLivraison, installation, garantie, service après-vente, retouches, essai, financement…\n\n### Qu'est-ce qu'une marque de distributeur (MDD) ?\nUne marque **créée et vendue par une enseigne** (et non par un fabricant), souvent moins chère que les grandes marques.\n\n### Que veut dire « un mix cohérent » ?\nLes 4P **se renforcent** entre eux et vont dans le sens du positionnement.\n> Cohérent : produit premium + prix maintenu + boutiques soignées + communication d'image.\n> Incohérent : produit de luxe + prix soldé + distribution discount.\n\n## 7 · Plan de marchéage : le prix\n\n### Que regroupe le P « Prix » ?\nLe niveau de prix, la stratégie de prix, les remises et les conditions de paiement.\n\n### Quelles sont les 3 contraintes qui pèsent sur la fixation d'un prix ?\nLes **coûts** (ne pas vendre à perte), la **demande** (ce que le client accepte de payer) et la **concurrence** (les prix des autres).\n\n### Qu'est-ce que le prix psychologique ?\nLe prix que la **majorité des clients** acceptent de payer : ni trop cher, ni trop bas (un prix trop bas fait douter de la qualité).\n\n### Quelles sont les 3 grandes stratégies de prix ?\n- **Écrémage** : prix élevé, pour une image haut de gamme.\n- **Pénétration** : prix bas, pour gagner vite des clients.\n- **Alignement** : prix proche de celui des concurrents.\n\n### Qu'est-ce qu'un produit d'appel ?\nUn produit à **prix très attractif**, mis en avant pour **faire venir les clients** en magasin, qui achèteront aussi d'autres produits.\n\n### Pourquoi calcule-t-on les marges en HT ?\nLa **TVA n'appartient pas au magasin** : il la collecte et la reverse à l'État.\n\n### Quels sont les taux de TVA en France ?\n- **20 %** : taux normal (la plupart des produits)\n- **10 %** : taux intermédiaire (restauration, transports)\n- **5,5 %** : taux réduit (alimentation, livres)\n- **2,1 %** : taux particulier (médicaments remboursés, presse)\n\n### Comment passe-t-on d'un prix HT à un prix TTC ? #calcul\n**PV TTC = PV HT × (1 + taux de TVA)**\n> PV HT 125 € · TVA 20 %\n> 125 × 1,20 = **150 € TTC**\n\n### Comment passe-t-on d'un prix TTC à un prix HT ? #calcul\n**PV HT = PV TTC ÷ (1 + taux de TVA)**\n> 150 ÷ 1,20 = **125 € HT**\n> Piège : 150 × 0,80 = 120 € est **faux** (on n'enlève pas 20 % du TTC).\n\n### Comment calcule-t-on le montant de la TVA ? #calcul\n**TVA = PV HT × taux de TVA** (ou PV TTC − PV HT)\n> 125 × 0,20 = **25 €** · vérification : 150 − 125 = 25 €\n\n### Comment calcule-t-on la marge unitaire ? #calcul\n**Marge unitaire = PV HT − coût d'achat HT**\n> PV HT 125 € · coût d'achat HT 70 €\n> 125 − 70 = **55 €**\n\n### Comment calcule-t-on le taux de marque ? #calcul\n**Taux de marque = marge unitaire ÷ PV HT × 100**\n> 55 ÷ 125 × 100 = **44 %**\n\n### Comment calcule-t-on le taux de marge ? #calcul\n**Taux de marge = marge unitaire ÷ coût d'achat HT × 100**\n> 55 ÷ 70 × 100 = **78,6 %**\n\n### Taux de marque ou taux de marge : quelle différence ? #calcul\nLa marge est la même, seul le **diviseur** change :\n- taux de **marque** → on divise par le **prix de vente HT** ;\n- taux de **marge** → on divise par le **coût d'achat HT**.\n> Même article : taux de marque 44 %, taux de marge 78,6 %\n\n### Comment calcule-t-on le coefficient multiplicateur ? #calcul\n**Coefficient = PV TTC ÷ coût d'achat HT**\nIl permet ensuite de calculer vite : PV TTC = coût d'achat HT × coefficient.\n> 150 ÷ 70 = **2,14**\n\n### Coût d'achat HT 40 €, coefficient 2,5 : quel prix de vente TTC ? #calcul\n**PV TTC = coût d'achat HT × coefficient**\n> 40 × 2,5 = **100 € TTC**\n\n### Comment trouver le PV HT à partir du coût d'achat et du taux de marque ? #calcul\n**PV HT = coût d'achat HT ÷ (1 − taux de marque)**\n> Coût d'achat 70 € · taux de marque 44 %\n> 70 ÷ (1 − 0,44) = 70 ÷ 0,56 = **125 € HT**\n\n### Comment trouver le PV HT à partir du coût d'achat et du taux de marge ? #calcul\n**PV HT = coût d'achat HT × (1 + taux de marge)**\n> Coût d'achat 80 € · taux de marge 25 %\n> 80 × 1,25 = **100 € HT**\n\n### Comment calcule-t-on la marge globale d'une opération ? #calcul\n**Marge globale = marge unitaire × quantité vendue**\n> 55 € × 48 paires = **2 640 €**\n\n### Comment calcule-t-on un prix après une réduction ? #calcul\n**Prix réduit = prix × (1 − taux de réduction)**\n> 150 € avec −20 % : 150 × 0,80 = **120 €**\n\n### Comment applique-t-on deux réductions successives ? #calcul\nOn les applique **l'une après l'autre**, on ne les additionne pas.\n> 100 € avec −10 % puis −5 % : 100 × 0,90 × 0,95 = **85,50 €**\n> (et non 85 € : la réduction totale est de 14,5 %, pas 15 %)\n\n### Comment calcule-t-on un taux de réduction ? #calcul\n**Taux de réduction = (ancien prix − nouveau prix) ÷ ancien prix × 100**\n> 80 € → 60 € : 20 ÷ 80 × 100 = **25 %**\n\n### Comment comparer son prix à celui d'un concurrent ? #calcul\n**Écart = (notre prix − prix du concurrent) ÷ prix du concurrent × 100**\n> Nous : 99 € · concurrent : 90 €\n> 9 ÷ 90 × 100 = **+10 %** (nous sommes 10 % plus chers)\n\n### Comment calcule-t-on le seuil de rentabilité ? #calcul\n**Seuil de rentabilité = charges fixes ÷ taux de marge sur coût variable**\nC'est le CA à partir duquel l'entreprise ne perd plus d'argent.\n> Charges fixes 30 000 € · taux de marge sur coût variable 40 %\n> 30 000 ÷ 0,40 = **75 000 € de CA**\n\n## 8 · Plan de marchéage : la distribution\n\n### Que regroupe le P « Place » (distribution) ?\nLes canaux de vente, les points de contact avec le client, la logistique et l'organisation **omnicanale**.\n\n### Quelle est la différence entre canal direct, court et long ?\n- **Direct** : du producteur au consommateur, sans intermédiaire.\n- **Court** : un seul intermédiaire (le détaillant).\n- **Long** : au moins deux intermédiaires (grossiste puis détaillant).\n\n### Quelle est la différence entre multicanal et omnicanal ?\n- **Multicanal** : plusieurs canaux qui fonctionnent séparément.\n- **Omnicanal** : les canaux sont **combinés** de façon cohérente ; le client passe de l'un à l'autre sans rupture.\n\n### Qu'est-ce que le click and collect ?\nLe client **commande en ligne** et **retire** sa commande en magasin.\n\n### Qu'est-ce que le marchandisage ?\nLes techniques de **présentation et de mise en valeur** des produits dans l'espace de vente pour vendre plus et améliorer l'expérience client. Trois dimensions : séduction, gestion, organisation.\n\n### Quelle est la différence entre zone chaude et zone froide ?\n- **Zone chaude** : très fréquentée naturellement (entrée, allée principale, caisses).\n- **Zone froide** : peu fréquentée (fond du magasin, angles). Il faut la « réchauffer » (animation, promotion, signalétique).\n\n### Quelle est la différence entre ILV et PLV ?\n- **ILV** : information sur le lieu de vente (prix, caractéristiques, signalétique).\n- **PLV** : publicité sur le lieu de vente (présentoir, affiche, kakémono).\n\n### Qu'est-ce que le facing ?\nLe nombre de produits identiques **visibles de face** dans le rayon.\n\n### Comment calcule-t-on un stock à prévoir avec une marge de sécurité ? #calcul\n**Besoin = ventes prévues × (1 + marge de sécurité)**, arrondi à l'unité **supérieure**.\n**À commander = besoin − stock disponible**\n> 14 paires prévues · +20 % · stock 6\n> 14 × 1,20 = 16,8 → 17 · 17 − 6 = **11 paires à commander**\n\n### Comment calcule-t-on un stock moyen ? #calcul\n**Stock moyen = (stock initial + stock final) ÷ 2**\n> (40 + 60) ÷ 2 = **50 articles**\n\n### Comment calcule-t-on le taux de rotation des stocks ? #calcul\n**Rotation = coût d'achat des marchandises vendues ÷ stock moyen au coût d'achat**\n**Durée moyenne de stockage = 360 ÷ rotation** (en jours)\n> 300 000 ÷ 50 000 = **6 rotations par an** · 360 ÷ 6 = **60 jours**\n\n### Comment calcule-t-on le CA au mètre linéaire ? #calcul\n**CA au mètre linéaire = CA du rayon ÷ longueur du linéaire développé (en m)**\n> 36 000 € ÷ 12 m = **3 000 € par mètre**\n\n### Comment calcule-t-on un taux de rupture ? #calcul\n**Taux de rupture = références en rupture ÷ références suivies × 100**\n> 6 références en rupture sur 120 → **5 %**\n\n### Comment calcule-t-on un taux de démarque ? #calcul\n**Taux de démarque = montant de la démarque ÷ CA × 100**\nLa démarque est l'écart entre le stock prévu et le stock réel (vol, casse, erreur).\n> 4 500 € ÷ 300 000 € × 100 = **1,5 %**\n\n## 9 · Plan de marchéage : la communication\n\n### Que regroupe le P « Promotion » (communication) ?\nLa publicité, les réseaux sociaux, les relations presse, l'événementiel et le bouche-à-oreille.\n\n### Quelle est la différence entre communication média et hors-média ?\n- **Média** : télévision, radio, presse, affichage, cinéma, Internet.\n- **Hors-média** : promotion des ventes, marketing direct, PLV, événementiel, salons, relations publiques.\n\n### Qu'est-ce que la promotion des ventes ?\nDes techniques qui **déclenchent l'achat rapidement** : réduction, lot, échantillon, jeu-concours, cadeau.\n\n### Qu'est-ce que le marketing direct ?\nUn message **personnalisé** envoyé directement à une cible (e-mail, SMS, courrier). Il faut le **consentement** du client (RGPD).\n\n### Qu'est-ce qu'une opération de création de trafic ?\nUne action qui fait **venir des clients** dans le point de vente : animation, événement, invitation, démonstration.\n\n### Comment calcule-t-on un taux de retour ? #calcul\n**Taux de retour = nombre de réponses ÷ nombre de messages envoyés × 100**\n> 90 réponses pour 1 500 e-mails → **6 %**\n\n### Comment calcule-t-on un coût par contact ? #calcul\n**Coût par contact = coût total de l'action ÷ nombre de personnes touchées**\n> 600 € ÷ 2 000 personnes = **0,30 €**\n\n### Comment calcule-t-on le coût d'acquisition d'un client ? #calcul\n**Coût d'acquisition = coût total de l'action ÷ nombre de nouveaux clients**\n> 600 € ÷ 40 nouveaux clients = **15 € par client**\n\n### Comment savoir si une action de communication est rentable ? #calcul\n**Résultat = marge générée par l'action − coût de l'action**\n> 40 achats × 25 € de marge = 1 000 € · 1 000 − 600 = **+400 €** : rentable\n\n### Comment calcule-t-on le taux de transformation d'une prospection téléphonique ? #calcul\n**Taux = rendez-vous obtenus ÷ appels passés × 100**\n> 12 rendez-vous pour 80 appels → **15 %**\n\n## 10 · Contrôle : les indicateurs de résultat\n\n### À quoi sert l'étape de contrôle ?\nÀ **mesurer** si l'action a atteint ses objectifs, avec des **indicateurs**, puis à ajuster. Les résultats nourrissent le diagnostic suivant.\n\n### Que signifie un objectif SMART ?\n**S**pécifique, **M**esurable, **A**tteignable, **R**éaliste, **T**emporellement défini (avec une date).\n\n### Les ventes ont augmenté : peut-on dire que l'opération est réussie ?\nPas forcément. Il faut analyser **chaque objectif séparément**, avec son propre indicateur.\n> Opération Air Max Day : objectif de ventes atteint, mais taux de transformation et ventes additionnelles en baisse.\n\n### Comment calcule-t-on le taux de transformation d'un magasin ? #calcul\n**Taux de transformation = nombre de tickets (acheteurs) ÷ nombre de visiteurs × 100**\n> 432 tickets pour 2 400 visiteurs → **18 %**\n\n### Comment calcule-t-on le panier moyen ? #calcul\n**Panier moyen = CA ÷ nombre de tickets**\n> 38 880 € ÷ 432 tickets = **90 €**\n\n### Comment calcule-t-on l'indice de vente (articles par ticket) ? #calcul\n**Indice de vente = nombre d'articles vendus ÷ nombre de tickets**\n> 648 articles ÷ 432 tickets = **1,5 article par ticket**\n\n### Comment calcule-t-on le prix moyen d'un article vendu ? #calcul\n**Prix moyen = CA ÷ nombre d'articles vendus**\n> 38 880 € ÷ 648 articles = **60 €**\n\n### Comment retrouver le CA à partir du trafic ? #calcul\n**CA = trafic × taux de transformation × panier moyen**\n> 2 400 × 18 % × 90 € = **38 880 €**\n\n### Un taux passe de 18 % à 17 %. Quelle évolution en points et en pourcentage ? #calcul\n- En **points** : 17 − 18 = **−1 point**\n- En **pourcentage** : (17 − 18) ÷ 18 × 100 = **−5,6 %**\nNe pas confondre les deux.\n\n### Comment calcule-t-on le taux de ventes additionnelles ? #calcul\n**Taux = ventes avec un article complémentaire ÷ ventes du produit principal × 100**\n> 12 ventes additionnelles pour 40 paires → **30 %**\n\n### Comment calcule-t-on un taux de réalisation de l'objectif ? #calcul\n**Taux de réalisation = résultat obtenu ÷ objectif × 100**\n> 52 paires vendues pour un objectif de 48 → **108,3 %**\n\n### Comment calcule-t-on un taux de fidélisation (réachat) ? #calcul\n**Taux de fidélisation = clients qui ont racheté ÷ clients de départ × 100**\n> 150 clients revenus sur 600 → **25 %**\n\n### Comment calcule-t-on un taux de satisfaction ? #calcul\n**Taux de satisfaction = clients satisfaits ÷ clients qui ont répondu × 100**\n> 171 satisfaits sur 180 réponses → **95 %**\n";
+const PLANNING = { 1: [1], 2: [1, 2], 3: [1], 4: [1, 2, 3], 5: [1, 4], 6: [1, 2, 5], 0: [1, 3, 6] };
+const NOMS_JOURS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+const ORDRE_SEMAINE = [1, 2, 3, 4, 5, 6, 0];
+const RYTHME = { 1: 'tous les jours', 2: '3 fois / semaine', 3: '2 fois / semaine', 4: '1 fois / semaine', 5: '1 fois / semaine', 6: '1 fois / semaine' };
+const MOIS = ['Janv.', 'Févr.', 'Mars', 'Avr.', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'];
+// Une clé par boîte, pour que deux boîtes ouvertes sur le même appareil ne se mélangent pas.
+const CLE_FICHIER = 'leitner:fichier-perso:' + hashTexte(parseCartes(MD_ORIGINE).titre);
+
+const $ = (s) => document.querySelector(s);
+const contenu = $('#contenu');
+
+function lireStockage(cle) { try { return localStorage.getItem(cle); } catch (e) { return null; } }
+function ecrireStockage(cle, val) { try { if (val === null) localStorage.removeItem(cle); else localStorage.setItem(cle, val); } catch (e) {} }
+
+function dateIso(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+const auj = () => dateIso(new Date());
+const compartimentsDuJour = () => PLANNING[new Date().getDay()];
+
+let deck, etat, cleEtat, fichierPerso = false;
+let vue = 'jour';
+let seance = null;
+let entrainement = { filtre: '', file: [], index: 0, retournee: false };
+let confirmerRaz = false;
+let messageFichier = '';
+
+function charger() {
+  const perso = lireStockage(CLE_FICHIER);
+  let md = MD_ORIGINE;
+  fichierPerso = false;
+  if (perso) {
+    const essai = parseCartes(perso);
+    if (essai.cartes.length) { md = perso; fichierPerso = true; }
+  }
+  deck = parseCartes(md);
+  cleEtat = 'leitner:' + hashTexte(deck.titre);
+  etat = null;
+  try { etat = JSON.parse(lireStockage(cleEtat) || 'null'); } catch (e) {}
+  if (!etat || typeof etat !== 'object') {
+    etat = { cartes: {}, themes: [deck.themes[0].nom], parJour: 8, jours: {}, ajouts: {} };
+  }
+  etat.cartes = etat.cartes || {}; etat.jours = etat.jours || {}; etat.ajouts = etat.ajouts || {};
+  etat.themes = (etat.themes || []).filter((n) => deck.themes.some((t) => t.nom === n));
+  if (!etat.parJour) etat.parJour = 8;
+  $('#titre-deck').textContent = deck.titre;
+  document.title = deck.titre.replace(/^Boîte de Leitner\s*[—-]\s*/, 'Leitner · ');
+  alimenter(0);
+}
+
+function sauver() { ecrireStockage(cleEtat, JSON.stringify(etat)); }
+
+// Cartes des thèmes cochés pas encore entrées dans la boîte, dans l'ordre du fichier.
+function fileAttente() {
+  return deck.cartes.filter((c) => etat.themes.includes(c.theme) && !etat.cartes[c.id]);
+}
+
+// Fait entrer de nouvelles cartes dans le compartiment 1 (limite par jour, plus un éventuel bonus).
+function alimenter(bonus) {
+  const t = auj();
+  let deja = etat.ajouts[t] || 0;
+  let place = Math.max(0, etat.parJour - deja) + bonus;
+  for (const c of fileAttente()) {
+    if (place <= 0) break;
+    etat.cartes[c.id] = { b: 1, last: null, ok: 0, ko: 0 };
+    place--; deja++;
+  }
+  etat.ajouts[t] = deja;
+  sauver();
+}
+
+function cartesDues() {
+  const comps = compartimentsDuJour();
+  const t = auj();
+  return deck.cartes.filter((c) => { const s = etat.cartes[c.id]; return s && comps.includes(s.b) && s.last !== t; });
+}
+
+function melanger(tab) {
+  const a = tab.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+function nbParCompartiment() {
+  const n = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
+  for (const c of deck.cartes) { const s = etat.cartes[c.id]; if (s) n[s.b]++; }
+  return n;
+}
+
+function joursCoches() { return Object.keys(etat.jours).filter((k) => etat.jours[k]).length; }
+
+/* ---------- Rendu d'une carte ---------- */
+function htmlCarte(c, opts) {
+  const s = etat.cartes[c.id];
+  const badge = opts.compartiment && s ? (s.b <= 6 ? 'Compartiment ' + s.b : 'Maîtrisée') : '';
+  const calc = c.calcul ? '<span class="puce calcul">Calcul</span>' : '';
+  const exemple = c.exemple.length
+    ? '<div class="exemple"><span class="titre-ex">Exemple</span>' + mdVersHtml(c.exemple) + '</div>' : '';
+  return '<div class="scene"><div class="flash' + (opts.retournee ? ' retournee' : '') + '" id="flash">' +
+    '<div class="face recto" aria-hidden="' + (opts.retournee ? 'true' : 'false') + '">' +
+      '<div class="haut"><span>' + echapper(c.theme) + '</span><span class="puces">' + calc + (badge ? '<span class="puce">' + badge + '</span>' : '') + '</span></div>' +
+      '<div class="question">' + enLigne(c.q) + '</div>' +
+    '</div>' +
+    '<div class="face verso" aria-hidden="' + (opts.retournee ? 'false' : 'true') + '">' +
+      '<div class="rappel">' + enLigne(c.q) + '</div>' +
+      '<div class="reponse">' + mdVersHtml(c.reponse) + '</div>' + exemple +
+    '</div>' +
+  '</div></div>';
+}
+
+/* ---------- Vue : aujourd'hui ---------- */
+function rendreJour() {
+  if (seance) return rendreSeance();
+  const t = new Date();
+  const comps = compartimentsDuJour();
+  const dues = cartesDues();
+  const parC = {};
+  dues.forEach((c) => { const b = etat.cartes[c.id].b; parC[b] = (parC[b] || 0) + 1; });
+  const attente = fileAttente().length;
+  const total = Object.keys(etat.cartes).filter((id) => deck.cartes.some((c) => c.id === id)).length;
+  const fait = etat.jours[auj()];
+
+  let h = '<section class="bloc">' +
+    '<h2>' + NOMS_JOURS[t.getDay()] + ' ' + t.getDate() + ' ' + MOIS[t.getMonth()].toLowerCase().replace('.', '') + '</h2>' +
+    '<div class="puces">' + comps.map((b) => '<span class="puce">Compartiment ' + b + (parC[b] ? ' · ' + parC[b] : '') + '</span>').join('') + '</div>';
+
+  if (dues.length) {
+    h += '<div class="rangee"><span class="gros">' + dues.length + '</span><span>carte' + (dues.length > 1 ? 's' : '') + ' à réviser aujourd\'hui</span></div>' +
+      '<div class="rangee"><button class="btn" id="go">Commencer la séance</button></div>';
+  } else if (fait) {
+    h += '<div class="bravo"><strong>Séance du jour terminée.</strong><span>La case d\'aujourd\'hui est cochée sur ton planning. Reviens demain.</span></div>';
+  } else if (!total) {
+    h += '<p>Ta boîte est vide. Coche un thème dans l\'onglet <strong>Thèmes</strong> pour faire entrer ses cartes.</p>';
+  } else {
+    h += '<p>Aucune carte à réviser dans les compartiments du jour. Tu peux t\'entraîner librement dans l\'onglet <strong>S\'entraîner</strong>.</p>';
+  }
+  h += '<p class="discret">' + total + ' carte' + (total > 1 ? 's' : '') + ' dans la boîte · ' + attente + ' en attente (' + etat.parJour + ' nouvelles par jour) · ' + joursCoches() + ' jour' + (joursCoches() > 1 ? 's' : '') + ' coché' + (joursCoches() > 1 ? 's' : '') + '</p>' +
+    '</section>';
+
+  h += '<details class="bloc"><summary>Comment ça marche ?</summary><ol>' +
+    '<li>Lis la question sans regarder le verso et formule la réponse dans ta tête. Pour un calcul, écris ton résultat.</li>' +
+    '<li>Retourne la carte et compare honnêtement.</li>' +
+    '<li><strong>Bonne réponse</strong> : la carte monte d\'un compartiment, elle reviendra moins souvent.</li>' +
+    '<li><strong>Mauvaise réponse</strong> : la carte retourne au compartiment 1, elle reviendra dès demain.</li>' +
+    '<li>Le planning décide quels compartiments ouvrir chaque jour. Le compartiment 1 revient tous les jours.</li>' +
+    '<li>Une carte réussie dans le compartiment 6 sort de la boîte : elle est <strong>maîtrisée</strong>.</li>' +
+    '</ol></details>';
+  contenu.innerHTML = h;
+  const go = $('#go');
+  if (go) go.onclick = () => { seance = { file: melanger(dues), index: 0, retournee: false, ok: 0, ko: 0 }; rendre(); };
+}
+
+function rendreSeance() {
+  const s = seance;
+  if (s.index >= s.file.length) {
+    etat.jours[auj()] = true; sauver();
+    contenu.innerHTML = '<section class="bravo"><h2>Séance terminée</h2>' +
+      '<p>' + s.ok + ' carte' + (s.ok > 1 ? 's' : '') + ' réussie' + (s.ok > 1 ? 's' : '') + ' (elles montent d\'un compartiment) · ' +
+      s.ko + ' à revoir demain (compartiment 1).</p><p>La case d\'aujourd\'hui est cochée sur ton planning.</p>' +
+      '<div class="rangee"><button class="btn" id="fin">Retour</button></div></section>';
+    $('#fin').onclick = () => { seance = null; rendre(); };
+    return;
+  }
+  const c = s.file[s.index];
+  const b = etat.cartes[c.id].b;
+  let h = '<div class="rangee" style="justify-content:space-between"><span class="discret">Carte ' + (s.index + 1) + ' sur ' + s.file.length + '</span>' +
+    '<button class="btn lien" id="stop">Arrêter la séance</button></div>' +
+    '<div class="progression"><div style="width:' + (s.index / s.file.length * 100) + '%"></div></div>' +
+    htmlCarte(c, { retournee: s.retournee, compartiment: true });
+  if (!s.retournee) {
+    if (c.calcul) h += '<div class="brouillon"><label for="brouillon" class="discret">Mon résultat (brouillon, non noté)</label><input id="brouillon" type="text" inputmode="decimal" autocomplete="off"></div>';
+    h += '<div class="rangee"><button class="btn" id="retourner">Retourner la carte</button><span class="discret">ou touche Espace</span></div>';
+  } else {
+    h += '<div class="rangee deux">' +
+      '<button class="btn ko" id="non">Je ne savais pas · retour au 1</button>' +
+      '<button class="btn ok" id="oui">Je savais · ' + (b >= 6 ? 'maîtrisée' : 'monte au ' + (b + 1)) + '</button></div>' +
+      '<p class="discret">Clavier : ← je ne savais pas · → je savais</p>';
+  }
+  contenu.innerHTML = h;
+  $('#stop').onclick = () => { seance = null; rendre(); };
+  if (!s.retournee) {
+    $('#retourner').onclick = retourner;
+  } else {
+    $('#oui').onclick = () => repondre(true);
+    $('#non').onclick = () => repondre(false);
+  }
+}
+
+function retourner() {
+  if (!seance || seance.retournee) return;
+  seance.retournee = true;
+  const brouillon = $('#brouillon');
+  const valeur = brouillon ? brouillon.value : '';
+  rendreSeance();
+  const flash = $('#flash');
+  if (flash) { flash.classList.remove('retournee'); void flash.offsetWidth; flash.classList.add('retournee'); }
+  if (valeur) {
+    const v = document.createElement('p');
+    v.className = 'discret';
+    v.textContent = 'Ton résultat : ' + valeur;
+    $('.scene').after(v);
+  }
+  $('#oui').focus();
+}
+
+function repondre(ok) {
+  const c = seance.file[seance.index];
+  const s = etat.cartes[c.id];
+  if (ok) { s.b = s.b >= 6 ? 7 : s.b + 1; s.ok++; seance.ok++; }
+  else { s.b = 1; s.ko++; seance.ko++; }
+  s.last = auj();
+  sauver();
+  seance.index++; seance.retournee = false;
+  rendreSeance();
+  window.scrollTo({ top: 0 });
+}
+
+/* ---------- Vue : ma boîte ---------- */
+function rendreBoite() {
+  const n = nbParCompartiment();
+  const comps = compartimentsDuJour();
+  const max = Math.max(1, ...[1, 2, 3, 4, 5, 6].map((b) => n[b]));
+  let h = '<section class="bloc"><h2>Les 6 compartiments</h2><div class="boite">';
+  for (let b = 1; b <= 6; b++) {
+    const traits = Math.min(10, Math.ceil(n[b] / max * 10));
+    h += '<div class="compartiment' + (comps.includes(b) ? ' ouvert' : '') + '">' +
+      '<span class="num">Compartiment ' + b + '</span>' +
+      '<div class="pile">' + '<span></span>'.repeat(n[b] ? Math.max(1, traits) : 0) + '</div>' +
+      '<span class="nb">' + n[b] + '</span><span class="ry">' + RYTHME[b] + '</span></div>';
+  }
+  h += '</div><p class="discret">Les compartiments encadrés s\'ouvrent aujourd\'hui. ' + n[7] + ' carte' + (n[7] > 1 ? 's' : '') + ' maîtrisée' + (n[7] > 1 ? 's' : '') + ' (sorties de la boîte) · ' + fileAttente().length + ' en attente.</p></section>';
+
+  h += '<section class="bloc"><h2>Par thème</h2><div class="defile"><table><thead><tr><th>Thème</th><th>Dans la boîte</th><th>Maîtrisées</th><th>Total</th></tr></thead><tbody>';
+  for (const t of deck.themes) {
+    const entrees = t.cartes.filter((c) => etat.cartes[c.id]).length;
+    const maitr = t.cartes.filter((c) => etat.cartes[c.id] && etat.cartes[c.id].b === 7).length;
+    h += '<tr><td>' + echapper(t.nom) + '</td><td>' + entrees + '</td><td>' + maitr + '</td><td>' + t.cartes.length + '</td></tr>';
+  }
+  h += '</tbody></table></div></section>';
+
+  const difficiles = deck.cartes.filter((c) => etat.cartes[c.id] && etat.cartes[c.id].ko >= 2)
+    .sort((a, b) => etat.cartes[b.id].ko - etat.cartes[a.id].ko).slice(0, 8);
+  h += '<section class="bloc"><h2>Mes cartes difficiles</h2>';
+  h += difficiles.length
+    ? '<table><tbody>' + difficiles.map((c) => '<tr><td>' + enLigne(c.q) + '</td><td style="white-space:nowrap">' + etat.cartes[c.id].ko + ' erreurs</td></tr>').join('') + '</tbody></table>'
+    : '<p class="discret">Les cartes ratées au moins deux fois apparaîtront ici.</p>';
+  h += '</section>';
+  contenu.innerHTML = h;
+}
+
+/* ---------- Vue : planning ---------- */
+function rendrePlanning() {
+  const jour = new Date().getDay();
+  let h = '<section class="bloc"><h2>Planning de la semaine</h2><div class="defile"><table class="semaine"><thead><tr><th></th>' +
+    ORDRE_SEMAINE.map((d) => '<th class="' + (d === jour ? 'auj' : '') + '">' + NOMS_JOURS[d].slice(0, 3) + '.</th>').join('') + '</tr></thead><tbody>';
+  for (let b = 1; b <= 6; b++) {
+    h += '<tr><th>C' + b + '</th>' + ORDRE_SEMAINE.map((d) => '<td class="' + (d === jour ? 'auj' : '') + '">' + (PLANNING[d].includes(b) ? '<span class="point" aria-label="oui"></span>' : '') + '</td>').join('') + '</tr>';
+  }
+  h += '</tbody></table></div><p class="discret">Jeudi et dimanche sont les jours les plus complets : trois compartiments.</p></section>';
+
+  const now = new Date();
+  const debut = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+  h += '<section class="bloc"><h2>Planning annuel ' + debut + '-' + (debut + 1) + '</h2>' +
+    '<p class="discret">Chaque séance terminée coche la case du jour. ' + joursCoches() + ' jour' + (joursCoches() > 1 ? 's' : '') + ' coché' + (joursCoches() > 1 ? 's' : '') + '.</p>' +
+    '<div class="defile"><div class="annee"><span></span>';
+  for (let d = 1; d <= 31; d++) h += '<span style="text-align:center">' + (d % 5 === 0 || d === 1 ? d : '') + '</span>';
+  const t = auj();
+  for (let k = 0; k < 12; k++) {
+    const m = (8 + k) % 12, a = m >= 8 ? debut : debut + 1;
+    const nbj = new Date(a, m + 1, 0).getDate();
+    h += '<span class="m">' + MOIS[m] + '</span>';
+    for (let d = 1; d <= 31; d++) {
+      if (d > nbj) { h += '<span class="j vide"></span>'; continue; }
+      const iso = dateIso(new Date(a, m, d));
+      h += '<span class="j' + (etat.jours[iso] ? ' fait' : '') + (iso === t ? ' auj' : '') + '" title="' + d + ' ' + MOIS[m] + (etat.jours[iso] ? ' · fait' : '') + '"></span>';
+    }
+  }
+  h += '</div></div></section>';
+  contenu.innerHTML = h;
+}
+
+/* ---------- Vue : entraînement libre ---------- */
+function rendreEntrainement() {
+  const e = entrainement;
+  let h = '<section class="bloc"><h2>S\'entraîner librement</h2><p class="discret">Ici, les cartes ne changent pas de compartiment. Pratique avant une évaluation.</p>' +
+    '<label for="filtre" class="discret">Cartes à réviser</label><select id="filtre" style="padding:10px;border-radius:8px;border:2px solid var(--trait);background:var(--carte)">' +
+    '<option value="">Choisir…</option><option value="*">Toutes les cartes (' + deck.cartes.length + ')</option>' +
+    '<option value="#calcul">Tous les calculs (' + deck.cartes.filter((c) => c.calcul).length + ')</option>' +
+    deck.themes.map((t, i) => '<option value="t' + i + '">' + echapper(t.nom) + ' (' + t.cartes.length + ')</option>').join('') +
+    '</select></section>';
+  if (e.file.length) {
+    const c = e.file[e.index];
+    h += '<div class="discret">Carte ' + (e.index + 1) + ' sur ' + e.file.length + '</div>' + htmlCarte(c, { retournee: e.retournee, compartiment: false }) +
+      '<div class="rangee">' + (e.retournee ? '' : '<button class="btn" id="e-ret">Retourner la carte</button>') +
+      '<button class="btn secondaire" id="e-suiv">Carte suivante</button></div>';
+  }
+  contenu.innerHTML = h;
+  const sel = $('#filtre');
+  sel.value = e.filtre;
+  sel.onchange = () => {
+    e.filtre = sel.value;
+    let liste = [];
+    if (sel.value === '*') liste = deck.cartes;
+    else if (sel.value === '#calcul') liste = deck.cartes.filter((c) => c.calcul);
+    else if (sel.value) liste = deck.themes[+sel.value.slice(1)].cartes;
+    e.file = melanger(liste); e.index = 0; e.retournee = false;
+    rendre();
+  };
+  if (e.file.length) {
+    const r = $('#e-ret');
+    if (r) r.onclick = () => { e.retournee = true; rendre(); const f = $('#flash'); f.classList.remove('retournee'); void f.offsetWidth; f.classList.add('retournee'); };
+    $('#e-suiv').onclick = () => { e.index = (e.index + 1) % e.file.length; e.retournee = false; rendre(); };
+  }
+}
+
+/* ---------- Vue : thèmes et réglages ---------- */
+function rendreThemes() {
+  let h = '<section class="bloc"><h2>Thèmes dans ma boîte</h2>' +
+    '<p class="discret">Coche les thèmes vus en classe. Leurs cartes entrent au compartiment 1, quelques-unes chaque jour.</p><div>';
+  deck.themes.forEach((t, i) => {
+    const entrees = t.cartes.filter((c) => etat.cartes[c.id]).length;
+    const calc = t.cartes.filter((c) => c.calcul).length;
+    h += '<div class="theme-ligne"><input type="checkbox" id="th-' + i + '"' + (etat.themes.includes(t.nom) ? ' checked' : '') + '>' +
+      '<label for="th-' + i + '"><strong>' + echapper(t.nom) + '</strong><br><span class="discret">' + t.cartes.length + ' cartes' + (calc ? ' dont ' + calc + ' calculs' : '') + ' · ' + entrees + ' dans la boîte</span>' +
+      '<div class="barre"><div style="width:' + (entrees / t.cartes.length * 100) + '%"></div></div></label></div>';
+  });
+  const attente = fileAttente().length;
+  h += '</div></section>' +
+    '<section class="bloc"><h2>Rythme</h2><div class="rangee"><label for="parjour">Nouvelles cartes par jour</label>' +
+    '<select id="parjour" style="padding:8px;border-radius:8px;border:2px solid var(--trait);background:var(--carte)">' +
+    [4, 6, 8, 10, 12, 15, 20].map((n) => '<option' + (n === etat.parJour ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></div>' +
+    '<div class="rangee"><button class="btn secondaire" id="ajout"' + (attente ? '' : ' disabled') + '>Ajouter ' + Math.min(etat.parJour, attente) + ' cartes maintenant</button>' +
+    '<span class="discret">' + attente + ' en attente</span></div></section>';
+
+  h += '<section class="bloc"><h2>Fichier de cartes</h2>' +
+    '<p class="discret">' + (fichierPerso ? 'Tu utilises un fichier chargé depuis ton appareil.' : 'Tu utilises les cartes d\'origine (' + deck.cartes.length + ' cartes).') +
+    ' Tu peux charger un fichier <code>cartes.md</code> modifié : la progression des cartes dont la question n\'a pas changé est conservée.</p>' +
+    '<div class="rangee"><input type="file" id="fichier" accept=".md,.txt,text/markdown,text/plain">' +
+    (fichierPerso ? '<button class="btn lien" id="origine">Revenir aux cartes d\'origine</button>' : '') + '</div>' +
+    (messageFichier ? '<p class="discret">' + echapper(messageFichier) + '</p>' : '') + '</section>';
+
+  h += '<section class="bloc"><h2>Recommencer à zéro</h2>';
+  h += confirmerRaz
+    ? '<div class="alerte"><strong>Toute ta progression sera effacée</strong> (compartiments et planning). Cette action est définitive.<div class="rangee"><button class="btn ko" id="raz-ok">Effacer ma progression</button><button class="btn lien" id="raz-non">Annuler</button></div></div>'
+    : '<div class="rangee"><button class="btn lien" id="raz">Effacer ma progression…</button></div>';
+  h += '</section>';
+  contenu.innerHTML = h;
+
+  deck.themes.forEach((t, i) => {
+    $('#th-' + i).onchange = (ev) => {
+      if (ev.target.checked) { if (!etat.themes.includes(t.nom)) etat.themes.push(t.nom); }
+      else etat.themes = etat.themes.filter((n) => n !== t.nom);
+      alimenter(0); rendre();
+    };
+  });
+  $('#parjour').onchange = (ev) => { etat.parJour = +ev.target.value; alimenter(0); rendre(); };
+  $('#ajout').onclick = () => { alimenter(etat.parJour); rendre(); };
+  $('#fichier').onchange = (ev) => {
+    const f = ev.target.files[0];
+    if (!f) return;
+    const lecteur = new FileReader();
+    lecteur.onload = () => {
+      const texte = String(lecteur.result);
+      const essai = parseCartes(texte);
+      if (!essai.cartes.length) { messageFichier = 'Ce fichier ne contient aucune carte : vérifie les titres « ## Thème » et « ### Question ».'; rendre(); return; }
+      ecrireStockage(CLE_FICHIER, texte);
+      messageFichier = 'Fichier chargé : ' + essai.cartes.length + ' cartes dans ' + essai.themes.length + ' thèmes.';
+      seance = null; entrainement = { filtre: '', file: [], index: 0, retournee: false };
+      charger(); rendre();
+    };
+    lecteur.readAsText(f, 'utf-8');
+  };
+  const o = $('#origine');
+  if (o) o.onclick = () => { ecrireStockage(CLE_FICHIER, null); messageFichier = 'Cartes d\'origine rétablies.'; charger(); rendre(); };
+  if (confirmerRaz) {
+    $('#raz-ok').onclick = () => { ecrireStockage(cleEtat, null); confirmerRaz = false; seance = null; charger(); vue = 'jour'; rendre(); };
+    $('#raz-non').onclick = () => { confirmerRaz = false; rendre(); };
+  } else {
+    $('#raz').onclick = () => { confirmerRaz = true; rendre(); };
+  }
+}
+
+/* ---------- Navigation ---------- */
+function rendre() {
+  document.querySelectorAll('#onglets button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.vue === vue)));
+  const n = cartesDues().length;
+  $('#sous-titre').textContent = deck.cartes.length + ' cartes · ' + deck.themes.length + ' thèmes · ' + (n ? n + ' à réviser aujourd\'hui' : 'rien à réviser aujourd\'hui');
+  ({ jour: rendreJour, boite: rendreBoite, planning: rendrePlanning, entrainement: rendreEntrainement, themes: rendreThemes })[vue]();
+}
+
+document.querySelectorAll('#onglets button').forEach((b) => {
+  b.onclick = () => { vue = b.dataset.vue; confirmerRaz = false; rendre(); };
+});
+
+document.addEventListener('keydown', (ev) => {
+  if (vue !== 'jour' || !seance || ev.target.tagName === 'INPUT' && ev.key !== 'Enter') return;
+  if (!seance.retournee && (ev.key === ' ' || ev.key === 'Enter')) { ev.preventDefault(); retourner(); }
+  else if (seance.retournee && ev.key === 'ArrowRight') repondre(true);
+  else if (seance.retournee && ev.key === 'ArrowLeft') repondre(false);
+});
+
+charger();
+rendre();
+</script>
+
+<script>
+// Installation et usage hors connexion, seulement sur un site en https.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('../sw.js').catch(function () {});
+}
+</script>
+</body>
+</html>

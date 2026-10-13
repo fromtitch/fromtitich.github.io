@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Boîtes de Leitner</title>
+<meta name="theme-color" content="#692073">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="icone-192.png">
+<style>
+/* Accueil : une colonne, une carte par boîte, deux actions par carte. Charte NOMADE, fond blanc. */
+:root {
+  --fond: #FFFFFF; --surface: #F8F3FA; --encre: #1A1A1A; --doux: #5E5366; --trait: #E7DCEC;
+  --prune: #692073; --magenta: #B141BF; --lavande: #DFB3F2; --bouton: #692073; --bouton-texte: #FFFFFF;
+  --police: Verdana, "DejaVu Sans", Geneva, Tahoma, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --fond: #16111A; --surface: #211A26; --encre: #F3EDF6; --doux: #BBAFC3; --trait: #3B2F42;
+    --prune: #E4A9EE; --magenta: #D47FDF; --lavande: #553663; --bouton: #E4A9EE; --bouton-texte: #1A1A1A; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fond); color: var(--encre); font-family: var(--police); font-size: 15px; line-height: 1.55; }
+.page { max-width: 720px; margin: 0 auto; padding: 24px 16px 40px; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-size: 1.3rem; color: var(--prune); margin: 0; text-wrap: balance; }
+h2 { font-size: 1.05rem; color: var(--prune); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.discret { color: var(--doux); font-size: .88rem; }
+.boite { background: var(--surface); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px; border-left: 5px solid var(--magenta); }
+.chiffres { display: flex; flex-wrap: wrap; gap: 6px; }
+.chiffres span { background: var(--lavande); border-radius: 999px; padding: 2px 10px; font-size: .8rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+a.btn { display: inline-block; text-decoration: none; border-radius: 8px; padding: 11px 18px; font-weight: bold; background: var(--bouton); color: var(--bouton-texte); }
+a.btn.secondaire { background: transparent; color: var(--prune); border: 2px solid var(--prune); padding: 9px 16px; }
+a:focus-visible { outline: 3px solid var(--magenta); outline-offset: 2px; }
+details { border-top: 1px solid var(--trait); padding-top: 12px; }
+summary { cursor: pointer; color: var(--prune); font-weight: bold; }
+details ul { margin: 8px 0 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Mes boîtes de Leitner</h1>
+    <p class="discret">Révise un peu chaque jour : la boîte choisit les cartes à revoir.</p>
+  </header>
+
+    <section class="boite">
+    <h2>La démarche mercatique</h2>
+    <p>Bac Pro MCV · les 6 étapes de la démarche mercatique et les calculs commerciaux.</p>
+    <div class="chiffres"><span>127 cartes</span><span>51 calculs</span><span>10 thèmes</span></div>
+    <div class="actions">
+      <a class="btn" href="mercatique/index.html">Réviser</a>
+      <a class="btn secondaire" href="mercatique/cartes-a-imprimer.html">Cartes à imprimer</a>
+    </div>
+  </section>
+
+  <section class="boite">
+    <h2>Économie-droit</h2>
+    <p>Bac pro tertiaires · le programme d&#x27;économie-droit, une question du programme par thème.</p>
+    <div class="chiffres"><span>169 cartes</span><span>22 calculs</span><span>14 thèmes</span></div>
+    <div class="actions">
+      <a class="btn" href="economie-droit/index.html">Réviser</a>
+      <a class="btn secondaire" href="economie-droit/cartes-a-imprimer.html">Cartes à imprimer</a>
+    </div>
+  </section>
+
+  <details>
+    <summary>Installer sur mon téléphone</summary>
+    <ul>
+      <li><strong>Android (Chrome)</strong> : menu ⋮ puis « Ajouter à l'écran d'accueil » ou « Installer l'application ».</li>
+      <li><strong>iPhone (Safari)</strong> : bouton Partager puis « Sur l'écran d'accueil ».</li>
+      <li>Après la première ouverture, les boîtes fonctionnent aussi sans connexion.</li>
+      <li>Ta progression reste sur ton téléphone. Utilise toujours le même navigateur.</li>
+    </ul>
+  </details>
+  <p class="discret">Mise à jour : 13/10/2026</p>
+</div>
+<script>
+// Installation et usage hors connexion, seulement sur un site en https.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').catch(function () {});
+}
+</script>
+</body>
+</html>
